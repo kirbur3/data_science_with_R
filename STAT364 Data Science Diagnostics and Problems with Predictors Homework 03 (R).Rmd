@@ -1,0 +1,484 @@
+---
+title: "STAT364 Data Science Diagnostics and Problems with Predictors Homework 03"
+author: "Kira Novitchkova-Burbank"
+output: rmdformats::material
+---
+# Chapter 6 Problem 1:
+
+### Using the sat dataset, fit a model with the total SAT score as the response and expend, salary, ratio and takers as predictors. Perform regression diagnostics on this model to answer the following questions. Display any plots that are relevant. Do not provide any plots about which you have nothing to say. Suggest possible improvements or corrections to the model where appropriate.
+
+### (a) Check the constant variance assumption for the errors.
+
+Your code:
+```{r}
+library(faraway)
+data(sat, package = "faraway")
+summary(sat)
+```
+
+```{r}
+lmod <- lm(total ~ expend + salary + ratio + takers, data = sat)
+lmod
+```
+
+__Making a plot with Fitted on the x-axis and Residuals on the y-axis:__
+
+```{r}
+plot(fitted(lmod),residuals(lmod),xlab="Fitted",ylab="Residuals")
+abline(h=0)
+```
+__Your answer:__ By looking at this plot, it seems like there is constant variance because there is no pattern in the data points.
+
+__Put your answer, explanation, findings here__
+
+### (b) Check the normality assumption.
+
+Your code:
+```{r}
+#Q-Q Plot
+qqnorm(residuals(lmod), ylab="Residuals", main="Normal Q-Q Plot")
+qqline(residuals(lmod))
+
+#histogram
+hist(residuals(lmod))
+
+```
+
+__Your answer:__ The Q-Q plot shows that the residuals follow a normal distribution because of where the data points are. Also, it seems like the median is 0. The histogram shows roughly a normal distribution because the bell-shaped curve is roughly in the middle. Although, the histogram also shows that it might be just slightly skewed because of the way the curve is.
+
+__Put your answer, explanation, findings here__
+
+
+### (c) Check for large leverage points.
+
+```{r}
+hat_val = hatvalues(lmod)
+head(hat_val)
+```
+```{r}
+library(faraway)
+states = row.names(sat)
+halfnorm(hat_val, labs=states, ylab="Leverages")
+```
+__Your answer:__ Since Utah and California are labeled, that means that they are large leverage points.
+
+__Put your answer, explanation, findings here__
+
+
+### (d) Check for outliers.
+
+```{r}
+r_stud = rstudent(lmod)
+r_stud
+```
+
+```{r}
+r_stud[which.max(abs(r_stud))]
+```
+__Your answer:__ Don't want this point to be too large in absolute value. You want this value to be close to 0 for it to not be an outlier. Although, abs(-3.124428) is obviously not close to 0, so it is an outlier.
+
+__Put your answer, explanation, findings here__
+
+## (e) Check for influential points.
+
+```{r}
+cook_distance = cooks.distance(lmod)
+halfnorm(cook_distance, labs=states, ylab="Cook’s distances")
+```
+__Your answer:__ Utah and West Virginia are the influential points because they are labeled.
+
+__Put your answer, explanation, findings here__
+
+## (f) Check the structure of the relationship between the predictors and the response.
+
+Your code:
+```{r}
+library(faraway)
+library(tidyverse)
+
+lmod <- lm(total ~ expend + salary + ratio + takers, data = sat)
+lmod
+
+#install.packages("car")
+library(car)
+library(carData)
+avPlots(lmod)
+```
+
+__Your answer:__
+
+These avplot's show that: 
+There is a slight positive linear relationship between the predictor expend and the response total.
+There is a slight positive linear relationship between the predictor salary and the response total.
+There is a negative linear relationship between the predictor ratio and the response total.
+There is a negative linear relationship between the predictor takers and the response total.
+
+__Put your answer, explanation, findings here__
+
+
+# Chapter 6 Problem 2:
+
+### Using the teengamb dataset, fit a model with gamble as the response and the other variables as predictors. Answer the questions posed in the previous question.
+
+### (a) Check the constant variance assumption for the errors.
+
+Your code:
+```{r}
+library(faraway)
+data(teengamb, package = "faraway")
+summary(teengamb)
+```
+
+```{r}
+lmod <- lm(gamble ~ sex + status + income + verbal, data = teengamb)
+lmod
+```
+
+Making a plot with Fitted on the x-axis and Residuals on the y-axis
+
+```{r}
+plot(fitted(lmod), residuals(lmod), xlab="Fitted", ylab="Residuals")
+abline(h=0)
+```
+
+__Your answer:__ By looking at this plot, it seems like there is non-constant variance because it somewhat looks linear at the lower fitted values then kind of like a megaphone then it looks like there are data points in random places.
+
+__Put your answer, explanation, findings here__
+
+### (b) Check the normality assumption.
+
+Your code:
+```{r}
+#Q-Q Plot
+qqnorm(residuals(lmod), ylab="Residuals", main="Normal Q-Q Plot")
+qqline(residuals(lmod))
+
+#histogram
+hist(residuals(lmod))
+
+```
+
+__Your answer:__ Check if this is right: The Q-Q plot shows that the residuals do not really follow normal distribution because of where the data points are. It seems like they follow the heavy-tail distribution. The histogram shows that it is a roughly normal distribution with potential outliers because of the little bar by the 100 on the residuals(lmod) axis.
+
+__Put your answer, explanation, findings here__
+
+### (c) Check for large leverage points.
+
+```{r}
+hat_val = hatvalues(lmod)
+head(hat_val)
+```
+
+```{r}
+library(faraway)
+head(teengamb)
+
+values = row.names(teengamb)
+halfnorm(hat_val, labs=values, ylab="Leverages")
+```
+
+__Your answer:__ Since values 42 and 35 are labeled, that means that they are large leverage points.
+
+__Put your answer, explanation, findings here__
+
+
+### (d) Check for outliers.
+
+```{r}
+r_stud = rstudent(lmod)
+r_stud
+```
+
+```{r}
+r_stud[which.max(abs(r_stud))]
+```
+__Your answer:__ Don't want this point to be too large in absolute value. You want this value to be close to 0 for it to not be an outlier. Although, 6.016116 is obviously not close to 0, so it is an outlier.
+
+__Put your answer, explanation, findings here__
+
+## (e) Check for influential points.
+
+```{r}
+cook_distance = cooks.distance(lmod)
+halfnorm(cook_distance, labs=values, ylab="Cook’s distances")
+```
+__Your answer:__ Values 39 and 24 are the influential points because they are labeled.
+
+__Put your answer, explanation, findings here__
+
+## (f) Check the structure of the relationship between the predictors and the response.
+
+Your code:
+```{r}
+library(faraway)
+library(tidyverse)
+
+lmod <- lm(gamble ~ sex + status + income + verbal, data = teengamb)
+lmod
+
+library(car)
+library(carData)
+
+avPlots(lmod)
+```
+
+__Your answer:__
+
+These avplot's show that: 
+There is a negative linear relationship between the predictor sex and the response gamble.
+There seems to be a very slight positive linear relationship between the predictor status and the response gamble.
+There is a positive linear relationship between the predictor income and the response gamble.
+There is a negative linear relationship between the predictor verbal and the response gamble.
+
+__Put your answer, explanation, findings here__
+
+# Chapter 7 Problem 3:
+
+### Using the divusa data: (a) Fit a regression model with divorce as the response and unemployed, femlab, marriage, birth and military as predictors. Compute the condition numbers and interpret their meanings.
+
+Your code:
+```{r}
+data(divusa, package = "faraway")
+summary(divusa)
+```
+
+```{r}
+lmod <- lm(divorce ~ unemployed + femlab + marriage + birth + military, data = divusa)
+lmod
+```
+
+```{r}
+summary(lmod)
+```
+Doing eigenvalue test:
+```{r}
+x <- model.matrix(lmod)[,-1]
+e <- eigen(t(x) %*% x)
+e$val
+```
+
+These are the condition numbers also known as ratios:
+```{r}
+sqrt(e$val[1]/e$val)
+```
+
+__Your answer:__ If the eigenvalues and the condition numbers (aka ratios) are between 0 and 1 then there are no collinearity issues. If the eigenvalues are not in between 0 and 1 and the condition numbers are really big then that means that there could be collinearity issues. In this case, both the eigenvalues and the condition numbers are really big, so there could be collinearity issues.
+
+__Put your answer, explanation, findings here__
+
+### (b) For the same model, compute the VIFs. Is there evidence that collinearity causes some predictors not to be significant? Explain.
+
+```{r}
+library(car)
+library(carData)
+
+#variance inflation factor quantifies the collinearity of each predictor
+#if the model preforms bad then it inflates the variance which are the values in the output below
+#so don't want large vif
+
+vif(lmod)
+```
+__Your answer:__ If vif is really huge, then will have collinearity issues. Especially if there is a scaling problem like if there are some values that are a lot bigger than the others. For no collinearity issues, looking for values around 5 or < 5 or < 10 and values that are all similar in size. So, based on this output from vif, it seems like there are no collinearity issues. 
+
+Because this shows that there are no collinearity issues, that means all of these predictors are significant. If there was collinearity issues though, then at least 1 predictor would not be significant because its values would be very similar to at least one other predictor's values.
+
+__Put your answer, explanation, findings here__
+
+### (c) Does the removal of insignificant predictors from the model reduce the collinearity? Investigate.
+
+```{r}
+summary(lmod)
+```
+
+__Your answer:__ The insignificant predictors are military and unemployed because their p-values are > 0.05. So, we remove them.
+
+```{r}
+lmod_partial <- lm(divorce ~ femlab + marriage + birth, data = divusa)
+lmod_partial
+```
+
+__Find condition numbers:__
+
+Doing eigenvalue test:
+```{r}
+x <- model.matrix(lmod_partial)[,-1]
+e <- eigen(t(x) %*% x)
+e$val
+```
+
+These are the condition numbers:
+```{r}
+sqrt(e$val[1]/e$val)
+```
+__Your answer:__ If the eigenvalues and the condition numbers (aka ratios) are between 0 and 1 then there are no collinearity issues. If the eigenvalues are not in between 0 and 1 and the condition numbers are really big then that means that there could be collinearity issues. In this case, both the eigenvalues and the condition numbers are really big, so there could be collinearity issues.
+
+Finding vif:
+```{r}
+library(car)
+library(carData)
+
+#variance inflation factor quantifies the collinearity of each predictor
+#if the model preforms bad then it inflates the variance which are the values in the output below
+#so don't want large vif
+
+vif(lmod_partial)
+```
+
+__Your answer:__ If vif is really huge, then will have collinearity issues. Especially if there is a scaling problem like if there are some values that are a lot bigger than the others. For no collinearity issues, looking for values around 5 or < 5 or < 10 and values that are all similar in size. So, based on this output from vif, it seems like there are no collinearity issues.
+
+The vif from the previous model showed that there wasn't any collinearity and this one still doesn't show any collinearity even with a smaller amount of predictors. That's a good thing because you don't want there to be collinearity all of a sudden. But it still didn't really reduce the collinearity because neither model had collinearity issues. It just reduced the amount of predictors.
+
+__Put your answer, explanation, findings here__
+
+# Chapter 7 Problem 8:
+
+### Use the fat data, fitting the model described in Section 4.2. (a) Compute the condition numbers and variance inflation factors. Comment on the degree of collinearity observed in the data.
+
+```{r}
+data(fat, package = "faraway")
+summary(fat)
+```
+
+```{r}
+lmod <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)
+lmod
+```
+
+```{r}
+summary(lmod)
+```
+
+Doing eigenvalue test:
+```{r}
+x <- model.matrix(lmod)[,-1]
+e <- eigen(t(x) %*% x)
+e$val
+```
+
+These are the condition numbers:
+```{r}
+sqrt(e$val[1]/e$val)
+```
+__Your answer:__ If the eigenvalues and the condition numbers (aka ratios) are between 0 and 1 then there are no collinearity issues. If the eigenvalues are not in between 0 and 1 and the condition numbers are really big then that means that there could be collinearity issues. In this case, both the eigenvalues and the condition numbers are really big, so there could be collinearity issues.
+
+Finding VIF:
+```{r}
+library(car)
+library(carData)
+
+vif(lmod)
+```
+__Your answer:__ If vif is really huge, then will have collinearity issues. Especially if there is a scaling problem like if there are some values that are a lot bigger than the others. For no collinearity issues, looking for values around 5 or < 5 or < 10 and values that are all similar in size. So, based on this output from vif, it seems like a few of the predictors might have collinearity issues.
+
+__Put your answer, explanation, findings here__
+
+### (b) Cases 39 and 42 are unusual. Refit the model without these two cases and recompute the collinearity diagnostics. Comment on the differences observed from the full data fit.
+
+```{r}
+fat_without39and42 <- fat[-c(39, 42),]
+lmod_without39and42 <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat_without39and42)
+
+lmod_without39and42
+```
+
+Doing eigenvalue test:
+```{r}
+x <- model.matrix(lmod_without39and42)[,-1]
+e <- eigen(t(x) %*% x)
+e$val
+```
+
+These are the condition numbers:
+```{r}
+sqrt(e$val[1]/e$val)
+```
+
+__Your answer:__ If the eigenvalues and the condition numbers (aka ratios) are between 0 and 1 then there are no collinearity issues. If the eigenvalues are not in between 0 and 1 and the condition numbers are really big then that means that there could be collinearity issues. In this case, both the eigenvalues and the condition numbers are really big, so there could be collinearity issues.
+
+Finding VIF:
+```{r}
+library(car)
+library(carData)
+
+vif(lmod_without39and42)
+```
+
+__Your answer:__ If vif is really huge, then will have collinearity issues. Especially if there is a scaling problem like if there are some values that are a lot bigger than the others. For no collinearity issues, looking for values around 5 or < 5 or < 10 and values that are all similar in size. So, based on this output from vif, it seems like this model might have more collinearity problems than the model with 39 and 42 because even though some of the vif values went down--some of the vif values went up especially the vif value for weight is quite a bit bigger than before.
+
+__Put your answer, explanation, findings here__
+
+### (c) Fit a model with brozek as the response and just age, weight and height as predictors. Compute the collinearity diagnostics and compare to the full data fit.
+
+```{r}
+lmod_partial <- lm(brozek ~ age + weight + height, fat)
+lmod_partial
+```
+
+Doing eigenvalue test:
+```{r}
+x <- model.matrix(lmod_partial)[,-1]
+e <- eigen(t(x) %*% x)
+e$val
+```
+
+These are the condition numbers:
+```{r}
+sqrt(e$val[1]/e$val)
+```
+
+__Your answer:__ If the eigenvalues and the condition numbers (aka ratios) are between 0 and 1 then there are no collinearity issues. If the eigenvalues are not in between 0 and 1 and the condition numbers are really big then that means that there could be collinearity issues. In this case, both the eigenvalues and the condition numbers are really big, so there could be collinearity issues.
+
+Finding VIF:
+```{r}
+library(car)
+library(carData)
+
+vif(lmod_partial)
+```
+
+__Your answer:__ If vif is really huge, then will have collinearity issues. Especially if there is a scaling problem like if there are some values that are a lot bigger than the others. For no collinearity issues, looking for values around 5 or < 5 or < 10 and values that are all similar in size. So, based on this output from vif, it seems like there are no collinearity issues. It seems like this model has much better vif values because there is no collinearity compared to the vif values computed above with other models.
+
+__Put your answer, explanation, findings here__
+
+### (d) Compute a 95% prediction interval for brozek for the median values of age, weight and height.
+
+```{r}
+x <- model.matrix(lmod_partial)
+x0 <- apply(x, 2, median)
+```
+
+```{r}
+predict_partial <- predict(lmod_partial, newdata=data.frame(t(x0)), interval="prediction")
+predict_partial
+```
+
+__Your answer:__ The 95% prediction interval for the reduced model is (7.659609, 28.90304).
+
+### (e) Compute a 95% prediction interval for brozek for age=40, weight=200 and height=73. How does the interval compare to the previous prediction?
+
+```{r}
+age <- 40
+weight <- 200
+height <- 73
+
+x0 <- c(age, weight, height)
+predict(lmod_partial, newdata = data.frame(t(x0)), interval="prediction")
+```
+
+__Your answer:__ The 95% prediction interval for the reduced model is (9.837784, 31.11929). This is a slightly larger prediction interval than the previous prediction interval because the width of the previous prediction interval was 28.90304 - 7.659609 = 21.243431 and the width of this prediction interval is 31.11929 - 9.837784 = 21.281506.
+
+__Put your answer, explanation, findings here__
+
+### (f) Compute a 95% prediction interval for brozek for age=40, weight=130 and height=73. Are the values of predictors unusual? Comment on how the interval compares to the previous two answers.
+
+```{r}
+age <- 40
+weight <- 130
+height <- 73
+
+x0 <- c(age, weight, height)
+predict(lmod_partial, newdata = data.frame(t(x0)), interval="prediction")
+```
+__Your answer:__ This prediction interval is unusual because the lower interval is a negative number and body fat shouldn't be negative. Also, the width of this prediction interval is 18.3359 - (-3.101062) = 21.436962. This width is slightly larger than the widths of the other two prediction intervals.
+
+__Put your answer, explanation, findings here__
