@@ -1,0 +1,242 @@
+---
+title: "STAT364 Data Science Midterm Project (R)"
+author: "Kira Novitchkova-Burbank"
+output: rmdformats::material
+---
+# Instructions and Reading in Data
+
+### I have a data set p3.txt to study the density of some types of materials. I observe 3 different properties from lab (Prop1, Prop2, Prop3 ) and I guess these three properties may affect the density. Please fit a linear model and answer the following questions.
+
+
+Your code:
+```{r}
+#install.packages(tidyverse)
+library(tidyverse)
+
+#Read a txt file, named "p3.txt"
+my_data_not_df <- read.delim("p3.txt")
+my_data <- data.frame(my_data_not_df) #making sure that my data is a data frame
+head(my_data)
+```
+
+
+# (a)
+### Clearly write out the formula of your linear model. Explain what is your response, what is/are your predictor/s.
+
+
+Your answer: lm(formula = density ~ Prop1 + Prop2 + Prop3, data = my_data). My response is density and my predictors are three properties which are: Prop1, Prop2, and Prop3.
+
+
+# (b)
+### Fit your model by using data in p3.txt
+
+Your code:
+```{r}
+lmod <- lm(density ~ Prop1 + Prop2 + Prop3, data = my_data)
+
+lmod_summary <- summary(lmod)
+lmod_summary #will use below
+```
+
+__Making three plots with linear regression lines to analyze in part (e):__
+
+Making a plot of density on Prop1:
+
+```{r}
+#plot with density as a response and Prop1 as a predictor
+ggplot(my_data, aes(Prop1, density)) +
+  geom_point() +
+  geom_smooth(method='lm')
+```
+
+
+Making a plot of density on Prop2:
+
+```{r}
+#plot with density as a response and Prop2 as a predictor
+ggplot(my_data, aes(Prop2, density)) +
+  geom_point() +
+  geom_smooth(method='lm')
+```
+
+Making a plot of density on Prop3:
+
+```{r}
+#plot with density as a response and Prop3 as a predictor
+ggplot(my_data, aes(Prop3, density)) +
+  geom_point() +
+  geom_smooth(method='lm')
+```
+
+# (c)
+### Analyze your result using what we have discussed, including parameter estimation, significance of each parameter, goodness of fit, hypothesis testing of the whole model, confidence interval of parameter.
+
+__Parameter Estimation__
+
+Parameter Estimation includes finding mean, standard deviation, and regression coefficients.
+
+
+Estimating average (mean) properties 1, 2, and 3:
+
+Your code:
+```{r}
+model_mat <- model.matrix(lmod)
+df_modelmat <- data.frame(model_mat)
+
+density_mean <- df_modelmat %>%
+  summarise_at(c("Prop1", "Prop2", "Prop3"), list(name = mean)) %>% #finding means of the properties
+  rename("Prop1" = "Prop1_name",
+          "Prop2" = "Prop2_name",
+          "Prop3" = "Prop3_name") #renaming columns because otherwise functions below can't find those variables
+density_mean
+
+```
+
+Your answer: These means of the predictors are the data averages of these predictors. As you can see, these three properties have averages that differ a lot from each other. It seems like they should be on three different scales because Prop1's average is between 0 and 1, Prop2's average is in the 20's, and Prop3's average is in the 1000's. At least none of these mean's have negative values because I don't think density should have any negative values.
+
+
+Next parts below use the summary:
+```{r}
+lmod <- lm(density ~ Prop1 + Prop2 + Prop3, data = my_data)
+
+lmod_summary <- summary(lmod)
+lmod_summary #will use below
+```
+
+
+Looking at the residual standard deviation also known as residual standard error:
+
+Your answer: If you look at the summary, the residual standard error is 0.1231. The standard error tells you how precise the mean of your random sample is likely to be compared to the actual population mean. When the standard error is bigger, then its means are farther apart from each other, which shows that there is a higher chance that any random sample mean is not a very good representation of the true population mean. So, a smaller standard error is better. Actually, a standard error that is around or equaling to zero means that the estimated value = the true value. I would say 0.1231 is a pretty good number because it's pretty close to 0.
+
+
+Looking at regression coefficients:
+
+Your answer: If you look at the summary, Prop1 has a coefficient of -1.054561967. Prop2 has a coefficient of 0.103627075. And Prop3 has a coefficient of -0.001038644. A regression coefficient is basically the slope of the line. It is also explained as the amount the response changes for a unit increase in the predictor. In this case, when density increases by 1, then Prop1 decreases by 1.054561967 because that is the value of the coefficient for Prop1. And when density increases by 1, then Prop2 will increase by 0.103627075 because that is the value of the coefficient for Prop2. And lastly, when density increases by 1, then Prop3 decreases by 0.001038644 because that is the value of the coefficient for Prop3.
+
+
+__Significance of Each Parameter__
+
+Determining significance of each parameter:
+
+Your answer: If you look at the summary, Prop1 has a p-value of < 2e-16. Prop2 has a p-value of < 2e-16. And Prop3 has a p-value of 0.00032. All of these have 3 asterisks which means that they are all statistically significant and well below the %5 level.
+
+__Goodness of Fit__
+
+Looking at R^2 from Summary:
+
+Your answer: Multiple R^2 is 0.9738. The ideal R^2 that you want should be close to 1 or equal to 1 because then there is a perfect linear relationship between the variables. So, since our R^2 value equals 0.9738 which is really close to 1 then that means that its a pretty good model.
+
+__Hypothesis Testing of the Whole Model__
+
+Your code:
+```{r}
+lmod <- lm(density ~ Prop1 + Prop2 + Prop3, data = my_data)
+
+lmod_null <- lm(density ~ 1, data = my_data)
+anova(lmod_null, lmod)
+
+```
+
+Your answer: Since the p-value is 2.2e-16 which is less than 0.05, that means that it is significant. So, the full model is better than the reduced model, and we reject the null hypothesis. Which means that these three predictors have a relationship with the response.
+
+__Confidence Interval of Parameter__
+
+Your code:
+```{r}
+summary(lmod)
+```
+```{r}
+CI95 <- confint(lmod, level = 0.95)
+CI95
+```
+
+Your answer: The 95% confidence interval for Prop1 is (-1.229693496, -0.8794304378). The 95% confidence interval for Prop2 is (0.101117084, 0.1061370667). The 95% confidence interval for Prop3 is (-0.001601547, -0.0004757419). If the interval is narrower, then there will be a smaller amount of uncertainty in the parameter estimate. Seems like Prop1 has the widest confidence interval and the Prop3 has the narrowest confidence interval. Although, all three confidence intervals seem to be pretty narrow, so that's good.
+
+
+
+# (d)
+### Collecting data from real world is very expensive for all of the three properties. Assuming the expenses of collecting data from three properties are the same and you can only afford one of them, which property will you use? Give me your reason.
+
+__Doing F-test to see which property is the most significant__
+
+Doing an F-test with Model 1: density~Prop1 and Model 2: density~Prop1+Prop2+Prop3:
+
+Your code:
+```{r}
+lmod_full <- lm(density ~ Prop1 + Prop2 + Prop3, data = my_data)
+
+lmod_partial_prop1 <- lm(density ~ Prop1, data = my_data)
+
+
+anova(lmod_partial_prop1, lmod_full)
+```
+
+Doing an F-test with Model 1: density~Prop2 and Model 2: density~Prop1+Prop2+Prop3:
+
+```{r}
+lmod_partial_prop2 <- lm(density ~ Prop2, data = my_data)
+
+
+anova(lmod_partial_prop2, lmod_full)
+```
+
+Doing an F-test with Model 1: density~Prop3 and Model 2: density~Prop1+Prop2+Prop3:
+
+```{r}
+lmod_partial_prop3 <- lm(density ~ Prop3, data = my_data)
+
+
+anova(lmod_partial_prop3, lmod_full)
+```
+Your answer: I don't see any difference in p-values, and they are all significant. So, I'm going to find another way to determine which property is the most significant.
+
+__Different way of determining which property is the most useful__
+
+Fitting these linear regression models and looking at R^2:
+
+lmod_1 = density ~ Prop1
+lmod_2 = density ~ Prop2
+lmod_3 = density ~ Prop3
+
+```{r}
+lmod_1 <- lm(density ~ Prop1, data=my_data)
+summary_lmod_1 <- summary(lmod_1)
+
+summary_lmod_1$r.squared #extract Multiple R-Squared
+```
+
+```{r}
+lmod_2 <- lm(density ~ Prop2, data=my_data)
+summary_lmod_2 <- summary(lmod_2)
+
+summary_lmod_2$r.squared
+```
+
+```{r}
+lmod_3 <- lm(density ~ Prop3, data=my_data)
+summary_lmod_3 <- summary(lmod_3)
+
+summary_lmod_3$r.squared
+```
+
+Your answer: The model that doesn't have a very good R^2 value is lmod_1 because the R^2 value isn't very close to 1. The other models are good though because the R^2 values are close to 1. So, based on this at least Prop1 is not a good choice.
+
+Although, this still doesn't narrower the choices down all the way because I still don't know if Prop2 or Prop3 is more useful. At least by looking at the plots from above, I can tell that the data points on the plot with Prop2 as the predictor are a lot closer to the linear regression line than Prop3 or Prop1.
+
+So, I think that if I can only afford one of the properties, I will use Prop2.
+
+
+# (e)
+### What other aspects/issues/problems/suggestions do you have from this data set and from your analysis? 
+
+Your answer: This answer will be based on the observations of the plots above in part (b).
+
+Note: A small variance means that the points should be pretty close to the mean, and to the other points. A high variance means that the points are pretty far away from the mean, and from each other.
+
+Based on the plot for Prop1, it seems as though all the values for Prop1 are between 0.15 and 0.65. Also, the variance is not constant. It seems as though the line doesn't fit the points very well because a lot of the points are pretty far from it, but there isn't any single outlier point that really differs from the others. Although, there is one point that is somewhat different from the others because it is the only point that is below 2 on the y-axis. All of the others are above 2. Anyways, the line is not that good of an estimation--especially after around the 0.5 mark on the x-axis probably because of that one point which is below 2. 
+
+Based on the plot for Prop2, it seems as though all the values for Prop2 are between 15 and 50. This is a much wider range than the values on the x-axis for the predictor Prop1. Also, the variance is not constant. However, this time it seems as though the line does fit the points very well because a lot of the points are pretty close to it. There also seems to be a lot of observations between 15 and 25 on the x-axis. Then, it gradually thins out. There isn't any single outlier point that really differs from the others, but the one point that slightly below 2 on the y-axis is a little different than the others. However, unlike in the Prop1 model where that point below 2 might have made a slight difference on the slope of the regression line, the point below 2 for the Prop2 plot doesn't seem to make much of a difference in the regression line.
+
+Based on the plot for Prop3, it seems as though all the values for Prop3 are between 2240 and 2360. This is a much much much wider range than the values on the x-axis for the predictor Prop1 and Prop2. Also, the variance is not constant. It seems as though the line doesn't fit the points very well because a lot of the points are pretty far from it, but there isn't any single outlier point that really differs from the others. Again, there is the point at 2 on the y-axis, but I don't think that it made a lot of difference in the slope of the linear regression line. This plot looks a lot more similar to the plot with Prop1 as the predictor than the plot with Prop2 as the predictor.
+
+It seems like the slope for the plot with Prop3 as the predictor is the flattest compare to the two other plots. The plot with Prop1 had the next flattest slope and then the plot with Prop2 has the least flat slope. Also, the plots with Prop1 and Prop3 have linear regression lines with negative slopes (which you could tell would be the case just by looking at the coefficients), and the plot with Prop2 has a line with positive slope. Also, the points in the plots with Prop1 and Prop3 start by having a high variance and seem to get closer together and have a smaller variance the further right they are on the graph. These are all just interesting observations.
