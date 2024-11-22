@@ -1,0 +1,386 @@
+---
+title: "STAT364 Data Science Estimation Homework 1 (R)"
+author: "Kira Novitchkova-Burbank"
+output: rmdformats::material
+---
+# Problem 1: The dataset teengamb concerns a study of teenage gambling in Britain. Fit a regression model with the expenditure on gambling as the response and the sex, status, income and verbal score as predictors. Present the output.
+
+## Question a: What percentage of variation in the response is explained by these predictors?
+
+Your code:
+```{r}
+library(faraway)
+data(teengamb)
+
+#start of my code
+data(teengamb, package = "faraway")
+summary(teengamb)
+
+lmod <- lm(gamble ~ sex + status + income + verbal, data=teengamb)
+summary(lmod)
+```
+
+Your code:
+```{r}
+#finding r_squared
+r_squared <- summary(lmod)$r.squared
+print(paste("r_squared: ", r_squared))
+```
+
+Your answer: 52.67% of the variation in the y values is explained by the x values.
+
+__Put your answer, explanation, findings here__
+
+## Question b: Which observation has the largest (positive) residual? Give the case number.
+
+Your code:
+```{r}
+#pulling just residuals
+teengamb$residuals <- lmod$residuals
+
+#finding what the max value is
+max <- max(teengamb$residuals)
+print(paste("max value: ", max))
+
+#finding the index value also known as the case number for the max value
+max_index <- which(teengamb$residuals == max)
+print(paste("case number: ", max_index))
+```
+
+Your answer: The observation with the largest (positive) residual is case number 24.
+
+__Put your answer, explanation, findings here__
+
+## Question c: Compute the mean and median of the residuals.
+
+Your code:
+```{r}
+#finding mean of a residual
+mean_residual <- mean(teengamb$residuals)
+print(paste("mean value: ", mean_residual))
+
+#finding median of a residual
+median_residual <- median(teengamb$residuals)
+print(paste("median value: ", median_residual))
+```
+
+Your answer: The mean of the residuals is -1.55691431968918e-16. The median of the residuals is -1.45139206896953.
+
+__Put your answer, explanation, findings here__
+
+## Question d: Compute the correlation of the residuals with the fitted values.
+
+Your code:
+```{r}
+#residuals
+print("teengamb$residuals")
+print(teengamb$residuals)
+
+#fitted values
+teengamb$fitted_values <- lmod$fitted.values
+cat("\nteengamb$fitted_values") #cat so that the new line would work
+print(teengamb$fitted_values)
+
+#correlation between residuals and fitted values
+correlation <- cor(teengamb$residuals, teengamb$fitted_values)
+print(paste("correlation", correlation))
+```
+
+Your answer: The correlation of the residuals with the fitted values is -6.21582345743482e-17.
+
+__Put your answer, explanation, findings here__
+
+## Question e: Compute the correlation of the residuals with the income.
+
+Your code:
+```{r}
+#correlation between residuals and income
+correlation <- cor(teengamb$residuals, teengamb$income)
+print(paste("correlation", correlation))
+```
+
+Your answer: The correlation of the residuals with the income is 3.24705779690709e-17.
+
+__Put your answer, explanation, findings here__
+
+## Question f: For all other predictors held constant, what would be the difference in predicted expenditure on gambling for a male compared to a female?
+
+Your code:
+```{r}
+teengamb_coef <- lmod$coefficients['sex'] #taking the coefficient for 'sex' because that is what we're interested in
+print(paste("coefficient for predictor 'sex':", teengamb_coef))
+```
+
+Your answer: The difference in predicted expenditure on gambling for a male compared to a female is -22.11833 which is the coefficient for 'sex', but I don't know what it means yet in the context of male vs female and their gambling habits.
+
+__Put your answer, explanation, findings here__
+
+# Problem 2: The dataset uswages is drawn as a sample from the Current Population Survey in 1988. Fit a model with weekly wages as the response and years of education and experience as predictors. Report and give a simple interpretation to the regression coefficient for years of education. Now fit the same model but with logged weekly wages. Give an interpretation to the regression coefficient for years of education. Which interpretation is more natural?
+
+Your code:
+
+```{r}
+data(uswages, package = "faraway")
+summary(uswages)
+```
+
+Weekly Wages Model:
+```{r}
+lmod <- lm(wage ~ educ + exper, data = uswages)
+summary(lmod)
+
+teengamb_coef <- lmod$coefficients['educ']
+print(paste("coefficient for predictor 'educ':", teengamb_coef))
+
+r_squared <- summary(lmod)$r.squared
+print(paste("weekly wages model r_squared:", r_squared))
+```
+Logged Weekly Wages:
+```{r}
+lmod <- lm(log(wage) ~ educ + exper, data = uswages)
+summary(lmod)
+
+teengamb_coef <- lmod$coefficients['educ']
+print(paste("coefficient for predictor 'educ':", teengamb_coef))
+
+r_squared <- summary(lmod)$r.squared
+print(paste("logged weekly wages model r_squared:", r_squared))
+
+```
+
+Your answer: Look at R^2 of both models and see which one is better. Weekly wages model r_squared is 0.135118568291978. Logged weekly wages model r_squared is 0.174860535404239. The better model should have R^2 be closer to 1. So, the logged weekly model is better because its R^2 is closer to 1.
+
+__Put your answer, explanation, findings here__
+
+# Problem 4: The dataset prostate comes from a study on 97 men with prostate cancer who were due to receive a radical prostatectomy. Fit a model with lpsa as the response and lcavol as the predictor. Record the residual standard error and the R2. Now add lweight, svi, lbph, age, lcp, pgg45 and gleason to the model one at a time. For each model record the residual standard error and the R2. Plot the trends in these two statistics.
+
+
+Your code:
+```{r}
+
+data(prostate, package = "faraway")
+summary(prostate)
+
+```
+lpsa ~ lcavol
+```{r}
+lmod <- lm(lpsa ~ lcavol, data = prostate)
+lmod
+
+standard_error <- summary(lmod)$sigma
+standard_error_trendline <- c() #making a vector
+standard_error_trendline <- c(standard_error_trendline, standard_error) #need to have the previous values (standard_error_trendline) still in the vector when you put the new value (standard_error) into the vector
+print("standard_error_trendline") #will have residual standard error values
+print(standard_error_trendline)
+
+r_squared <- summary(lmod)$r.squared
+r_squared_trendline <- c()
+r_squared_trendline <- c(r_squared_trendline, r_squared)
+print("r_squared_trendline") #will have r squared values
+print(r_squared_trendline)
+
+```
+lpsa ~ lcavol + lweight
+```{r}
+lmod <- lm(lpsa ~ lcavol + lweight, data = prostate)
+lmod
+
+standard_error <- summary(lmod)$sigma
+standard_error_trendline <- c(standard_error_trendline, standard_error)
+print("standard_error_trendline")
+print(standard_error_trendline)
+
+r_squared <- summary(lmod)$r.squared
+r_squared_trendline <- c(r_squared_trendline, r_squared)
+print("r_squared_trendline")
+print(r_squared_trendline)
+```
+lpsa ~ lcavol + lweight + svi
+```{r}
+lmod <- lm(lpsa ~ lcavol + lweight + svi, data = prostate)
+lmod
+
+standard_error <- summary(lmod)$sigma
+standard_error_trendline <- c(standard_error_trendline, standard_error)
+print("standard_error_trendline")
+print(standard_error_trendline)
+
+r_squared <- summary(lmod)$r.squared
+r_squared_trendline <- c(r_squared_trendline, r_squared)
+print("r_squared_trendline")
+print(r_squared_trendline)
+```
+
+lpsa ~ lcavol + lweight + svi + lbph
+```{r}
+lmod <- lm(lpsa ~ lcavol + lweight + svi, data = prostate)
+lmod
+
+standard_error <- summary(lmod)$sigma
+standard_error_trendline <- c(standard_error_trendline, standard_error)
+print("standard_error_trendline")
+print(standard_error_trendline)
+
+r_squared <- summary(lmod)$r.squared
+r_squared_trendline <- c(r_squared_trendline, r_squared)
+print("r_squared_trendline")
+print(r_squared_trendline)
+```
+
+lpsa ~ lcavol + lweight + svi + lbph + age
+```{r}
+lmod <- lm(lpsa ~ lcavol + lweight + svi + age, data = prostate)
+lmod
+
+standard_error <- summary(lmod)$sigma
+standard_error_trendline <- c(standard_error_trendline, standard_error)
+print("standard_error_trendline")
+print(standard_error_trendline)
+
+r_squared <- summary(lmod)$r.squared
+r_squared_trendline <- c(r_squared_trendline, r_squared)
+print("r_squared_trendline")
+print(r_squared_trendline)
+```
+
+lpsa ~ lcavol + lweight + svi + lbph + age + lcp
+```{r}
+lmod <- lm(lpsa ~ lcavol + lweight + svi + age + lcp, data = prostate)
+lmod
+
+standard_error <- summary(lmod)$sigma
+standard_error_trendline <- c(standard_error_trendline, standard_error)
+print("standard_error_trendline")
+print(standard_error_trendline)
+
+r_squared <- summary(lmod)$r.squared
+r_squared_trendline <- c(r_squared_trendline, r_squared)
+print("r_squared_trendline")
+print(r_squared_trendline)
+```
+
+lpsa ~ lcavol + lweight + svi + lbph + age + lcp + pgg45
+```{r}
+lmod <- lm(lpsa ~ lcavol + lweight + svi + age + lcp + pgg45, data = prostate)
+lmod
+
+standard_error <- summary(lmod)$sigma
+standard_error_trendline <- c(standard_error_trendline, standard_error)
+print("standard_error_trendline")
+print(standard_error_trendline)
+
+r_squared <- summary(lmod)$r.squared
+r_squared_trendline <- c(r_squared_trendline, r_squared)
+print("r_squared_trendline")
+print(r_squared_trendline)
+```
+
+lpsa ~ lcavol + lweight + svi + lbph + age + lcp + pgg45 + gleason
+```{r}
+lmod <- lm(lpsa ~ lcavol + lweight + svi + age + lcp + pgg45 + gleason, data = prostate)
+lmod
+
+standard_error <- summary(lmod)$sigma
+standard_error_trendline <- c(standard_error_trendline, standard_error)
+print("standard_error_trendline")
+print(standard_error_trendline)
+
+r_squared <- summary(lmod)$r.squared
+r_squared_trendline <- c(r_squared_trendline, r_squared)
+print("r_squared_trendline")
+print(r_squared_trendline)
+```
+
+```{r}
+#Note: type means display the data as line and/or point. l means (display line only), p (show point only) and b (show both)
+plot(standard_error_trendline, main = "Standard Error Plot", type = "b", col = "forestgreen")
+```
+```{r}
+plot(r_squared_trendline, main = "R Squared Plot", type = "b", col = "cornflowerblue")
+```
+
+
+Your answer: Graphs above ^
+
+__Put your answer, explanation, findings here__
+
+# Problem 6: Thirty samples of cheddar cheese were analyzed for their content of acetic acid, hydrogen sulfide and lactic acid. Each sample was tasted and scored by a panel of judges and the average taste score produced. Use the cheddar data to answer the following:
+
+```{r}
+data(cheddar, package = "faraway")
+summary(cheddar)
+```
+
+
+## Question a: Fit a regression model with taste as the response and the three chemical contents as predictors. Report the values of the regression output.
+Your code:
+```{r}
+lmod <- lm(taste ~ Acetic + H2S + Lactic, data = cheddar)
+summary(lmod)
+```
+
+Your answer: Above in summary ^
+
+__Put your answer, explanation, findings here__
+
+## Question b: Compute the correlation between the fitted values and the response. Square it. Identify where this value appears in the regression output.
+
+Your code:
+```{r}
+cheddar$fitted_values <- lmod$fitted.values
+print("cheddar$fitted_values")
+print(cheddar$fitted_values)
+
+correlation <- cor(cheddar$fitted_values, cheddar$taste)
+print(paste("correlation:", correlation))
+
+correlation_squared <- correlation ** 2
+print(paste("correlation_squared:", correlation_squared))
+```
+
+Your answer: Seems like it is Multiple R-squared.
+
+__Put your answer, explanation, findings here__
+
+## Question c: Fit the same regression model but without an intercept term. What is the value of R^2 reported in the output? Compute a more reasonable measure of the goodness of fit for this example.
+
+Model without intercept:
+
+Your code:
+```{r}
+lmod <- lm(taste ~ 0 + Acetic + H2S + Lactic, data = cheddar) #now B0 = 0 which removes the intercept
+summary(lmod)
+```
+
+```{r}
+r_squared <- summary(lmod)$r.square #value of R^2
+print(paste("r_squared for model without intercept:", r_squared))
+```
+
+Model with intercept:
+
+```{r}
+lmod <- lm(taste ~ Acetic + H2S + Lactic, data = cheddar)
+summary(lmod)
+```
+
+```{r}
+r_squared <- summary(lmod)$r.square #value of R^2
+print(paste("r_squared for model with intercept:", r_squared))
+```
+
+Your answer: The value of R^2 for the model without the intercept is 0.8877059. The value of R^2 for the model with the intercept is 0.651774689826765. The model without the intercept has a better R^2 because its closer to 1.
+
+__Put your answer, explanation, findings here__
+
+## Question d: Compute the regression coefficents from the original fit using the QR decomposition showing your R code.
+
+Your code:
+```{r}
+
+```
+
+Your answer: Don't have to do this problem.
+
+__Put your answer, explanation, findings here__
+
