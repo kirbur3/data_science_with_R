@@ -1,0 +1,761 @@
+---
+title: "STAT364 Data Science Inference, Predictor, and Explanation Homework 02"
+author: "Kira Novitchkova-Burbank"
+output: rmdformats::material
+---
+# Chapter 3 Problem 1:
+
+### For the prostate data, fit a model with lpsa as the response and the other variables as predictors:
+### (a) Compute 90 and 95% CIs for the parameter associated with age. Using just these intervals, what could we have deduced about the p-value for age in the regression summary?
+
+
+Your code:
+```{r}
+library(faraway)
+
+data(prostate, package = "faraway")
+summary(prostate)
+```
+
+Your code:
+
+```{r}
+lmod <- lm(lpsa ~ lcavol + lweight + age + lbph + svi + lcp + gleason + pgg45, data = prostate)
+lmod
+```
+
+```{r}
+#CI stands for confidence interval
+CI90 <- confint(lmod, level = 0.90)
+print("CI90:")
+print(CI90)
+
+CI95 <- confint(lmod, level = 0.95)
+print("CI95:")
+print(CI95)
+```
+
+Your answer: The 90% confidence interval for age is (-0.038210200, -0.001064151). The 95% confidence interval for age is (-0.041840618, 0.002566267). The narrower the interval the smaller the p-value. The 90% confidence interval is narrower, so the p-value for age in CI 90% is smaller.
+
+__Put your answer, explanation, findings here__
+
+### (b) Compute and display a 95% joint confidence region for the parameters associated with age and lbph. Plot the origin on this display. The location of the origin on the display tells us the outcome of a certain hypothesis test. State that test and its outcome.
+
+Your code:
+```{r}
+#first install package
+#install.packages("ellipse")
+library(ellipse)
+```
+
+```{r}
+#ellipse
+plot(ellipse(lmod, c("age", "lbph")), type="l")
+#origin
+points(coef(lmod) ["age"], coef(lmod) ["lbph"], pch=19)
+
+#intervals
+abline(v=CI95["age",], lty=2)
+abline(h=CI95["lbph",], lty=2)
+```
+
+Your answer: It looks like the origin (0,0) is inside both intervals and is inside the ellipse, as well. That means that both the joint hypothesis and the single hypotheses are not rejected.
+
+__Put your answer, explanation, findings here__
+
+
+### (d) Remove all the predictors that are not significant at the 5% level. Test this model against the original model. Which model is preferred?
+
+Your code:
+```{r}
+summary(lmod)
+```
+```{r}
+#the not significant predictors at 5% are the predictors with the p values that are > 0.05 which are age, lbph, lcp, gleason, and pgg45
+lmod_sp <- lm(lpsa ~ lcavol + lweight + svi, data = prostate) #sp stands for significant predictors
+lmod_sp
+```
+```{r}
+anova(lmod_sp, lmod)
+```
+
+
+Your answer: Since, the p-value is 0.2167 which is greater than 0.05, that means that we failed to reject the null hypothesis. That means that the reduced model is better than the full model.
+
+__Put your answer, explanation, findings here__
+
+
+# Chapter 3 Problem 2:
+
+### Thirty samples of cheddar cheese were analyzed for their content of acetic acid, hydrogen sulfide and lactic acid. Each sample was tasted and scored by a panel of judges and the average taste score produced. Use the cheddar data to answer the following: (a) Fit a regression model with taste as the response and the three chemical contents as predictors. Identify the predictors that are statistically significant at the 5% level.
+
+Your code:
+```{r}
+data("cheddar", package = "faraway")
+summary(cheddar)
+```
+
+```{r}
+lmod <- lm(taste ~ Acetic + H2S + Lactic, data=cheddar)
+summary(lmod)
+```
+
+Your answer: The predictors that are significant at the the 5% level are H2S and Lactic.
+
+__Put your answer, explanation, findings here__
+
+
+###	(b) Acetic and H2S are measured on a log scale. Fit a linear model where all three predictors are measured on their original scale. Identify the predictors that are statistically significant at the 5% level for this model.
+
+Your code:
+
+```{r}
+lmod <- lm(taste ~ exp(Acetic) + exp(H2S) + Lactic, data=cheddar)
+summary(lmod)
+```
+
+Your answer: Only Lactic is statistically significant at the 5% level.
+
+__Put your answer, explanation, findings here__
+
+
+###	(c) Can we use an F-test to compare these two models? Explain. Which model provides a better fit to the data? Explain your reasoning.
+
+Your answer: These models are not nested, so an F-test cannot be used to compare these two models. I'm pretty sure that I should compare the R^2's for these two models in order to understand which model provides a better fit to the data. For the first model the R^2 value is 0.6518, and the R^2 value for the second model is 0.5754. Since 0.6518 is closer to 1, that means that the first model is better.
+
+__Put your answer, explanation, findings here__
+
+
+### (d) If H2S is increased 0.01 for the model used in (a), what change in the taste would be expected?
+
+Your code:
+
+```{r}
+summary(lmod)
+```
+
+Your answer: If H2S is increased by 0.01 then that would mean that the beta hat for H2S would have to be multiplied by 0.01, and the answer to that would be the expected change in taste. 3.9118 * 0.01 = 0.039118. So, the expected change in taste would be 0.039118.
+
+__Put your answer, explanation, findings here__
+
+# Chapter 3 Problem 7:
+
+### In the punting data, we find the average distance punted and hang times of 10 punts of an American football as related to various measures of leg strength for 13 volunteers. (a) Fit a regression model with Distance as the response and the right and left leg strengths and flexibilities as predictors. Which predictors are significant at the 5% level?
+
+
+Your code:
+```{r}
+data("punting", package = "faraway")
+summary(punting)
+```
+
+```{r}
+lmod <- lm(Distance ~ RStr + LStr + RFlex + LFlex, data=punting)
+summary(lmod)
+```
+
+Your answer: None of the predictors are significant at the 5% level. All of them fail to reject the null hypothesis.
+
+__Put your answer, explanation, findings here__
+
+### (b) Use an F-test to determine whether collectively these four predictors have a relationship to the response.
+
+
+Your code:
+
+```{r}
+#Personal note: on page 36 of the book it explains about the null model
+null_lmod <- lm(Distance ~ 1, data=punting)
+null_lmod
+```
+
+```{r}
+anova(null_lmod, lmod)
+```
+
+
+Your answer: Since the p-value is 0.01902 which is less than 0.05, we reject the null hypothesis. Which means that the full model is better. Which means that these four predictors have a relationship with the response.
+
+__Put your answer, explanation, findings here__
+
+### (c) Relative to the model in (a), test whether the right and left leg strengths have the same effect.
+
+
+Your code:
+
+```{r}
+lmod_ls <- lm(Distance ~ I(RStr + LStr) + RFlex + LFlex, data=punting) #ls stands for leg strengths
+lmod_ls
+```
+
+```{r}
+anova(lmod_ls, lmod)
+```
+
+Your answer: Since the p-value is 0.468 which is greater than 0.05, we fail to reject the null hypothesis. It is not significant, so the right and left leg strengths have the same effect.
+
+__Put your answer, explanation, findings here__
+
+
+### (e) Fit a model to test the hypothesis that it is total leg strength defined by adding the right and left leg strengths that is sufficient to predict the response in comparison to using individual left and right leg strengths.
+
+Your code:
+
+```{r}
+#adding right and left leg strengths together
+lmod_tls <- lm(Distance ~ I(RStr + LStr), data=punting) #tls stands for total leg strength
+lmod_tls
+```
+
+```{r}
+#individual right and left leg strengths
+lmod_irl <- lm(Distance ~ RStr + LStr, data=punting) #irl stands for individual right and left
+lmod_irl
+```
+
+```{r}
+anova(lmod_tls, lmod_irl)
+```
+
+
+Your answer: Since the p-value is 0.5978 which is greater than 0.05, the total leg strength is not sufficient enough to predict the response in comparison to using individual strengths. Which means that we fail to reject the null hypothesis.
+
+__Put your answer, explanation, findings here__
+
+
+### (f) Relative to the model in (a), test whether the right and left leg flexibilities have the same effect.
+
+
+Your code:
+
+```{r}
+lmod_lf <- lm(Distance ~ RStr + LStr + I(RFlex + LFlex), data=punting) #lf stands for leg flexibilities
+lmod_lf
+```
+
+```{r}
+anova(lmod_lf, lmod)
+```
+
+
+Your answer: Since the p-value is 0.2017 which is greater than 0.05, the right and left leg flexibilities have the same effect. Which means we fail to reject the null hypothesis.
+
+__Put your answer, explanation, findings here__
+
+
+### (g) Test for left–right symmetry by performing the tests in (c) and (f) simultaneously.
+
+
+Your code:
+
+```{r}
+#because need to perform tests simultaneously, do I(RStr + LStr) + I(RFlex + LFlex)
+lmod_2I <- lm(Distance ~ I(RStr + LStr) + I(RFlex + LFlex), data=punting) #2I stands for 2 I's
+lmod_2I
+```
+
+```{r}
+anova(lmod_2I, lmod)
+```
+
+
+Your answer: Since the p-value is 0.337 which is greater than 0.05, the left–right symmetry has the same effect as the full model. Which means we fail to reject the null hypothesis.
+
+__Put your answer, explanation, findings here__
+
+
+### (h) Fit a model with Hang as the response and the same four predictors. Can we make a test to compare this model to that used in (a)? Explain.
+
+Your code:
+```{r}
+lmod_hang <- lm(Hang ~ RStr + LStr + RFlex + LFlex, data=punting)
+lmod_hang
+```
+
+
+Your answer: We can't do an F-test to compare this model to that used in (a) because they are not nested. They're not nested because the first model has Distance as the response and the second model has Hang as the response.
+
+__Put your answer, explanation, findings here__
+
+
+# Chapter 4 Problem 1:
+
+
+### For the prostate data, fit a model with lpsa as the response and the other variables as predictors. (a) Suppose a new patient with the following values arrives: lcavol=1.44692, lweight=3.62301, age=65.00000, lbph=0.30010, svi=0.00000, lcp=-0.79851, gleason=7.00000, pgg45=15.00000. Predict the lpsa for this patient along with an appropriate 95% CI.
+
+Your code:
+```{r}
+data("prostate", package = "faraway")
+summary(prostate)
+```
+
+```{r}
+#For the prostate data, fit a model with lpsa as the response and the other variables as predictors.
+lmod <- lm(lpsa ~ lcavol + lweight + age + lbph + svi + lcp + gleason + pgg45, data=prostate)
+lmod
+```
+```{r}
+#assign values to correct variable names
+lcavol <- 1.44692
+lweight <- 3.62301
+age <- 65.00000
+lbph <- 0.30010
+svi <- 0.00000
+lcp <- -0.79851
+gleason <- 7.00000
+pgg45 <- 15.00000
+
+#making a model out of this
+lmod_np <- lm(lpsa ~ lcavol + lweight + age + lbph + svi + lcp + gleason + pgg45, data=prostate) #np means new patient
+lmod_np
+```
+
+```{r}
+#turn values into a vector because they need to be a vector in order to work in data.frame
+x0 <- c(lcavol, lweight, age, lbph, svi, lcp, gleason, pgg45)
+
+predict_np <- predict(lmod_np, newdata=data.frame(t(x0)), interval="confidence")
+predict_np
+```
+
+
+Your answer: The predicted value for lpsa is 2.389053. The 95% CI is (2.172437, 2.605669).
+
+__Put your answer, explanation, findings here__
+
+
+### (b) Repeat the last question for a patient with the same values except that he is age 20. Explain why the CI is wider.
+
+
+Your code:
+
+```{r}
+#only change age to 20
+age <- 20
+
+lmod_np <- lm(lpsa ~ lcavol + lweight + age + lbph + svi + lcp + gleason + pgg45, data=prostate)
+lmod_np
+```
+
+```{r}
+x0 <- c(lcavol, lweight, age, lbph, svi, lcp, gleason, pgg45)
+
+predict_np <- predict(lmod_np, newdata=data.frame(t(x0)), interval="confidence")
+predict_np
+```
+
+
+Your answer: The predicted value for lpsa is 3.272726. The 95% CI is (2.260444, 4.285007). It is wider because there is not as much certainty for a man with an age of 20.
+
+__Put your answer, explanation, findings here__
+
+
+###	(c) For the model of the previous question, remove all the predictors that are not significant at the 5% level. Now recompute the predictions of the previous question. Are the CIs wider or narrower? Which predictions would you prefer? Explain.
+
+
+Your code:
+
+```{r}
+summary(lmod_np)
+```
+
+```{r}
+#remove all predictors with p-values that have '.' and ' '
+lmod_sv <- lm(lpsa ~ lcavol + lweight + svi, data=prostate) #s stands for significant values
+lmod_sv
+```
+
+```{r}
+x0 <- c(lcavol, lweight, svi)
+
+predict_sv <- predict(lmod_sv, newdata=data.frame(t(x0)), interval="confidence")
+predict_sv
+```
+
+
+Your answer: The CI is (2.197274, 2.547794) which is narrower than the previous model. And since narrower CI's are better because they are more precise, I would prefer predictions from models with narrower CI's.
+
+__Put your answer, explanation, findings here__
+
+
+# Chapter 4 Problem 2:
+
+
+### Using the teengamb data, fit a model with gamble as the response and the other variables as predictors. (a) Predict the amount that a male with average (given these data) status, income and verbal score would gamble along with an appropriate 95% CI.
+
+
+Your code:
+```{r}
+data("teengamb", package="faraway")
+summary(teengamb)
+```
+
+```{r}
+lmod <- lm(gamble ~ sex + status + income + verbal, data=teengamb)
+lmod
+```
+
+```{r}
+#find mean of status, income, and verbal score male
+library(tidyverse)
+model_mat <- model.matrix(lmod)
+df_modelmat <- data.frame(model_mat)
+
+male_gamb_mean <- df_modelmat %>%
+  group_by(sex) %>%
+  summarise_at(c("status", "income", "verbal"), list(name = mean)) %>%
+  head(1) %>% #shows the first row of the tibble which is male because otherwise will show both female and male
+  rename("status" = "status_name",
+          "income" = "income_name",
+          "verbal" = "verbal_name") #renaming columns because otherwise functions below can't find those variables
+male_gamb_mean
+
+```
+
+```{r}
+predict(lmod, newdata= male_gamb_mean, interval = "confidence")
+```
+
+
+Your answer: The predicted value for gamble is 29.775, and the 95% CI is (21.12132, 38.42868).
+
+__Put your answer, explanation, findings here__
+
+
+## (b) Repeat the prediction for a male with maximal values (for this data) of status, income and verbal score. Which CI is wider and why is this result expected?
+
+
+Your code:
+
+```{r}
+#find max of status, income, and verbal score male
+model_mat <- model.matrix(lmod)
+df_modelmat <- data.frame(model_mat)
+
+male_gamb_max <- df_modelmat %>%
+  group_by(sex) %>%
+  summarize(max_status = max(status), max_income = max(income), max_verbal = max(verbal)) %>%
+  head(1) %>% #shows the first row of the tibble which is male because otherwise will show both female and male
+  rename("status" = "max_status",
+          "income" = "max_income",
+          "verbal" = "max_verbal")
+
+male_gamb_max
+
+```
+
+```{r}
+predict(lmod, newdata= male_gamb_max, interval = "confidence")
+```
+
+
+Your answer: The predicted value for gamble is 71.30794 and the 95% CI is (42.23237, 100.3835). This CI is wider because those aren't average but max values. Max values could range a lot whereas average values are average.
+
+__Put your answer, explanation, findings here__
+
+
+## (c) Fit a model with sqrt(gamble) as the response but with the same predictors. Now predict the response and give a 95% prediction interval for the individual in (a). Take care to give your answer in the original units of the response.
+
+
+Your code:
+
+```{r}
+lmod <- lm(sqrt(gamble) ~ sex + status + income + verbal, data=teengamb)
+lmod
+```
+
+```{r}
+#find mean of status, income, and verbal score male
+model_mat <- model.matrix(lmod)
+df_modelmat <- data.frame(model_mat)
+
+male_gamb_mean <- df_modelmat %>%
+  group_by(sex) %>%
+  summarise_at(c("status", "income", "verbal"), list(name = mean)) %>%
+  head(1) %>% #shows the first row of the tibble which is male because otherwise will show both female and male
+  rename("status" = "status_name",
+          "income" = "income_name",
+          "verbal" = "verbal_name") #renaming columns because otherwise functions below can't find those variables
+male_gamb_mean
+
+```
+
+```{r}
+predict(lmod, newdata= male_gamb_mean, interval = "prediction")
+```
+
+
+Your answer: The predicted expenditure on gambling in pounds per year is 4.390678, and the 95% CI is (0.1104836, 8.670872).
+
+__Put your answer, explanation, findings here__
+
+
+## 	(d) Repeat the prediction for the model in (c) for a female with status=20, income=1, verbal = 10. Comment on the credibility of the result.
+
+
+Your code:
+
+```{r}
+sex <- 1
+status <- 20
+income <- 1
+verbal <- 10
+
+x0 <- c(sex, status, income, verbal)
+predict(lmod, newdata = data.frame(t(x0)), interval="prediction")
+```
+
+Your answer: It seems like the result isn't that good because this female has a much lower status (20 compared to 65), much lower income (1 compared to 10), and a little higher verbal (10 compared to 8). Still, I think the prediction is too low because she has too many things that are lower than average.
+
+__Put your answer, explanation, findings here__
+
+
+# Chapter 4 Problem 5:
+
+
+### For the fat data used in this chapter, a smaller model using only age, weight, height and abdom was proposed on the grounds that these predictors are either known by the individual or easily measured. (a) Compare this model to the full thirteen-predictor model used earlier in the chapter. Is it justifiable to use the smaller model?
+
+
+Your code:
+```{r}
+data("fat", package="faraway") #has more than 13 predictors but will use the same 13 predictors like the book
+summary(fat)
+```
+
+```{r}
+lmod_partial <- lm(brozek ~ age + weight + height + abdom, data=fat)
+lmod_partial
+```
+
+```{r}
+lmod_full <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data=fat)
+lmod_full
+```
+
+```{r}
+anova(lmod_partial, lmod_full)
+```
+
+
+Your answer: Since the p-value is 0.002558 which is less than 0.05, the full model is better than the reduced model, and we reject the null hypothesis.
+
+__Put your answer, explanation, findings here__
+
+
+###	(b) Compute a 95% prediction interval for median predictor values and compare to the results to the interval for the full model. Do the intervals differ by a practically important amount?
+
+
+Your code:
+
+```{r}
+#for partial model
+x_partial <- model.matrix(lmod_partial)
+x0_partial <- apply(x_partial, 2, median)
+```
+
+```{r}
+#for full model
+x_full <- model.matrix(lmod_full)
+x0_full <- apply(x_full, 2, median)
+```
+
+
+```{r}
+predict_partial <- predict(lmod_partial, newdata=data.frame(t(x0_partial)), interval="prediction")
+predict_partial
+```
+
+```{r}
+predict_full <- predict(lmod_full, newdata=data.frame(t(x0_full)), interval="prediction")
+predict_full
+```
+
+
+Your answer: The 95% prediction interval for the reduced model is (9.696631, 25.98392), and the 95% prediction interval for the full model is (9.61783, 25.36861). There isn't much of a difference between these intervals.
+
+__Put your answer, explanation, findings here__
+
+
+### (c) For the smaller model, examine all the observations from case numbers 25 to 50. Which two observations seem particularly anomalous?
+
+
+Your code:
+
+```{r}
+case_num <- fat[25:50, c("age", "weight", "height", "abdom")]
+case_num
+```
+
+```{r}
+#Personal note: look at page 53 in book for explanation
+predict(lmod_partial, new=data.frame(case_num), interval="prediction")
+```
+
+
+Your answer: When getting measured, fat can't be negative, so the observations 47 and 50 seem particularly anomalous.
+
+__Put your answer, explanation, findings here__
+
+
+### (d) Recompute the 95% prediction interval for median predictor values after these two anomalous cases have been excluded from the data. Did this make much difference to the outcome?
+
+Your code:
+
+```{r}
+x_partialnew <- model.matrix(lmod_partial)[-c(47,50),]
+x0_partialnew <- apply(x_partialnew, 2, median)
+predict(lmod_partial, new=data.frame(t(x0_partialnew)), interval="prediction")
+```
+
+Your answer: The 95% prediction interval is (9.740209, 26.02725). The 95% prediction interval for the model before these were excluded is (9.696631, 25.98392). So, no there is not much difference in the outcome.
+
+__Put your answer, explanation, findings here__
+
+
+# Chapter 5 Problem 1:
+
+
+## Use the teengamb data with gamble as the response. We focus on the effect of sex on the response and so we include this predictor in all models. There are eight possible models that include all, some, or none of the other three predictors. Fit all these models and report on the coefficient and significance of sex in each case. Comment on the stability of the effect.
+
+Your code:
+```{r}
+data("teengamb", package="faraway")
+summary(teengamb)
+
+```
+
+```{r}
+lmod_1 <- lm(gamble ~ sex, data=teengamb)
+summary(lmod_1)
+lmod_2 <- lm(gamble ~ sex + status, data=teengamb)
+summary(lmod_2)
+lmod_3 <- lm(gamble ~ sex + income, data=teengamb)
+summary(lmod_3)
+lmod_4 <- lm(gamble ~ sex + verbal, data=teengamb)
+summary(lmod_4)
+lmod_5 <- lm(gamble ~ sex + status + income, data=teengamb)
+summary(lmod_5)
+lmod_6 <- lm(gamble ~ sex + status + verbal, data=teengamb)
+summary(lmod_6)
+lmod_7 <- lm(gamble ~ sex + income + verbal, data=teengamb)
+summary(lmod_7)
+lmod_8 <- lm(gamble ~ sex + status + income + verbal, data=teengamb)
+summary(lmod_8)
+```
+
+
+Your answer:
+
+For lmod_1, the coefficient for sex is -25.909 and it has a 0.01 significance level.
+
+For lmod_2, the coefficient for sex is -35.7094 and it has a 0.001 significance level.
+
+For lmod_3, the coefficient for sex is -21.634 and it has a 0.01 significance level.
+
+For lmod_4, the coefficient for sex is -27.722 and it has a 0.01 significance level.
+
+For lmod_5, the coefficient for sex is -24.3393 and it has a 0.01 significance level.
+
+For lmod_6, the coefficient for sex is -33.7520 and it has a 0.01 significance level.
+
+For lmod_7, the coefficient for sex is -22.9602 and it has a 0.01 significance level.
+
+For lmod_8, the coefficient for sex is -22.11833 and it has a 0.05 significance level.
+
+
+The sex variable seems to have a pretty stable effect on each model. It seems to influce all those models a lot. The p-values are small and coefficients are negative. Which means that when sex increases then gambling decreases. That means that since females are 1's, every time there is an increase in 1 female there is a decrease in gambling. Which means that females gamble less.
+
+__Put your answer, explanation, findings here__
+
+
+# Chapter 5 Problem 3:
+
+
+### Use the teengamb data for this question. (a) Make a plot of gamble on income using a different plotting symbol depending on the sex.
+
+
+Your code:
+```{r}
+#The easiest way to get ggplot2 is to install the whole tidyverse:
+#install.packages("tidyverse")
+library(tidyverse)
+ggplot(data=teengamb, aes(x=income, y=gamble)) + geom_point(aes(shape=factor(sex)))
+```
+
+Your answer:
+
+__Put your answer, explanation, findings here__
+
+
+###	(b) Fit a regression model with gamble as the response and income and sex as predictors. Display the regression fit on the plot.
+
+
+Your code:
+
+```{r}
+ggplot(data=teengamb, aes(x=income, y=gamble)) + geom_point(aes(shape=factor(sex))) + geom_smooth(aes(group=factor(sex)), method='lm')
+```
+
+Your answer:
+
+__Put your answer, explanation, findings here__
+
+
+# Chapter 5 Problem 4:
+
+
+### Thirty-nine MBA students were asked about happiness and how this related to their income and social life. The data are found in happy.(a) Fit a regression model with happy as the response and the other four variables as predictors. Give an interpretation for the meaning of the love coefficient.
+
+
+Your code:
+```{r}
+data("happy", package="faraway")
+summary(happy)
+```
+
+```{r}
+lmod <- lm(happy ~ money + sex + love + work, data=happy)
+summary(lmod)
+```
+
+
+Your answer: When love goes up by 1, then happiness will increase by 1.919279 because that is the value of coefficient for love.
+
+__Put your answer, explanation, findings here__
+
+###	(b) The love predictor takes three possible values but mostly takes the value 2 or 3. Create a new predictor called clove which takes the value zero if love is 2 or less. Use this new predictor to replace love in the regression model and interpret the meaning of the corresponding coefficient. Do the results differ much from the previous model?
+
+
+Your code:
+
+```{r}
+happy <- happy %>%
+  mutate(clove=ifelse(love <= 2, 0, 1))
+happy
+
+```
+
+```{r}
+lmod_clove <- lm(happy ~ money + sex + clove + work, data=happy)
+summary(lmod_clove)
+```
+
+
+Your answer: When clove goes up by 1, then happiness will increase by 2.296435 because that is the value of coefficient for clove. The results differ a little bit because in the previous problem the coefficient for love was 1.919279, but now the coefficient for clove is 2.296435 which is a little bit bigger.
+
+__Put your answer, explanation, findings here__
+
+
+## (c) Fit a model with only clove as a predictor and interpret the coefficient. How do the results compare to the previous outcome.
+
+
+Your code:
+
+```{r}
+lmod_clove_only <- lm(happy ~ clove, data=happy)
+summary(lmod_clove_only)
+```
+
+Your answer: When clove goes up by 1 in this model, then happiness will increase by 2.7222 because that is the value of coefficient for clove in this model. The results differ a little bit because in an earlier problem the coefficient for love was 1.919279, and then the coefficient for clove was 2.296435 which was a little bit bigger. But now this coefficient for clove is even bigger.
+
+__Put your answer, explanation, findings here__
