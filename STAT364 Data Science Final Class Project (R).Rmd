@@ -1,0 +1,1977 @@
+---
+title: "STAT364 Data Science Final Project"
+author: "Kira Novitchkova-Burbank"
+output: rmdformats::material
+---
+
+# Instructions and Reading in Data
+
+### Please analyze the attached data set (final.txt). Our goal is to find a way to build the relationship between the density of meterials and other factors. The data set has the first row as the header. The first column is the response and the remainings are predictors (numberings as names). If you noticed that the first 3 predictors are what we used for our midterm. The original data set is huge (many predictors), please be careful when you conduct linear model. You may encounter errors if you didn't deal with the high dimensionality. Good luck.
+
+```{r}
+#Read a txt file, named "final.txt"
+my_data_not_df <- read.delim("final.txt")
+my_data <- data.frame(my_data_not_df) #making sure that my data is a data frame
+
+head(my_data)
+
+#Just to make sure there aren't any missing values use na.omit.
+data <- na.omit(my_data)
+```
+
+Selecting the Model Using Backward Elimination:
+```{r}
+#install.packages("leaps")
+library(leaps)
+```
+
+# Model Selection:
+
+```{r}
+lmod_withNA <- lm(density ~., data = data)
+summary(lmod_withNA)
+```
+
+From this summary above, you can tell that a lot of coefficients can't be estimated and that's because a lot of the predictor variables have a perfect linear relationship with each other which means that one of the variables supply's independent and unique information but the other of the two (or if there are more, then others) doesn't. So, we can just get rid of the variables with the NA coefficient estimates.
+
+Now we need to remove the NA coefficients or just not include them in the model. And since the coefficients that need to be included all have p-values, you can just include those coefficients and at the same time find the max p-value to then not include that coefficient either.
+```{r}
+summary(lmod_withNA)$coefficients[,4]
+```
+
+Here is the model with all of the predictors that don't have any NA coefficients (there should be 263):
+
+lmod <- lm(density ~ 
+
+X15 + X16 + X17 + X18 + X19 + X20 + X21 + X22 + X23 + X24 
++ X25 + X26 + X27 + X28 + X29 + X30 + X31 + X32 + X33 + X34 
++ X35 + X36 + X37 + X38 + X39 + X40 + X41 + X43 + X44 + X45
++ X46 + X1 +  X2 +  X3 +  X4 +  X5 +  X6 +  X7 +  X8 +  X9
++ X10 + X11 + X12 + X13 + X14 + X15.1+X16.1+X18.1+X19.1+X20.1
++ X21.1+X22.1+X25.1+X27.1+X28.1+X29.1+X30.1+X31.1+X32.1+X33.1
++ X34.1+X35.1+X36.1+X37.1+X38.1+X39.1+X40.1+X41.1+X42.1+X43.1
++ X44.1+X45.1+X47 + X48 + X49 + X50 + X51 + X53 + X54 + X56
++ X57 + X58 + X59 + X60 + X61 + X62 + X63 + X64 + X65 + X66
++ X67 + X68 + X69 + X70 + X71 + X72 + X73 + X74 + X75 + X76
+
++ X78 + X79 + X80 + X81 + X82 + X84 + X85 + X86 + X87 + X89
++ X90 + X91 + X93 + X94 + X96 + X97 + X99 + X100+ X103+ X106
++ X109 +X111 +X112 +X113 +X114 +X116 +X118 +X119 +X120 +X122
++ X123 +X125 +X126 +X129 +X132 +X135 +X137 +X138 +X139 +X140
++ X141 +X142 +X143 +X144 +X145 +X147 +X148 +X149 +X150 +X151
++ X154 +X156 +X157 +X160 +X163 +X164 +X165 +X168 +X172 +X173
++ X175 +X178 +X186 +X187 +X188 +X189 +X195 +X198 +X201 +X209
++ X210 +X211 +X212 +X213 +X214 +X216 +X217 +X219 +X220 +X223
++ X224 +X226 +X229 +X232 +X233 +X234 +X237 +X238 +X240 +X241
++ X243 +X244 +X247 +X250 +X252 +X253 +X254 +X255 +X261 +X277
+
++ X280 +X283 +X286 +X289 +X291 +X292 +X293 +X294 +X295 +X296
++ X297 +X298 +X300 +X301 +X302 +X304 +X307 +X309 +X310 +X311
++ X312 +X321 +X327 +X330 +X331 +X334 +X337 +X340 +X342 +X343
++ X344 +X345 +X346 +X349 +X352 +X355 +X357 +X358 +X359 +X360
++ X376 +X388 +X391 +X396 +X397 +X398 +X399 +X421 +X426 +X427
++ X428 +X429 +X445 +X448 +X457 +X458 +X459 +X460 +X461 +X462
++ X463 + X464 + X465
+
+, data = data)
+
+
+```{r}
+#lmod is the model without NA's
+lmod <- lm(density ~  X15 + X16 + X17 + X18 + X19 + X20 + X21 + X22 + X23 + X24 
++ X25 + X26 + X27 + X28 + X29 + X30 + X31 + X32 + X33 + X34 
++ X35 + X36 + X37 + X38 + X39 + X40 + X41 + X43 + X44 + X45
++ X46 + X1 +  X2 +  X3 +  X4 +  X5 +  X6 +  X7 +  X8 +  X9
++ X10 + X11 + X12 + X13 + X14 + X15.1+X16.1+X18.1+X19.1+X20.1
++ X21.1+X22.1+X25.1+X27.1+X28.1+X29.1+X30.1+X31.1+X32.1+X33.1
++ X34.1+X35.1+X36.1+X37.1+X38.1+X39.1+X40.1+X41.1+X42.1+X43.1
++ X44.1+X45.1+X47 + X48 + X49 + X50 + X51 + X53 + X54 + X56
++ X57 + X58 + X59 + X60 + X61 + X62 + X63 + X64 + X65 + X66
++ X67 + X68 + X69 + X70 + X71 + X72 + X73 + X74 + X75 + X76
++ X78 + X79 + X80 + X81 + X82 + X84 + X85 + X86 + X87 + X89
++ X90 + X91 + X93 + X94 + X96 + X97 + X99 + X100+ X103+ X106
++ X109 +X111 +X112 +X113 +X114 +X116 +X118 +X119 +X120 +X122
++ X123 +X125 +X126 +X129 +X132 +X135 +X137 +X138 +X139 +X140
++ X141 +X142 +X143 +X144 +X145 +X147 +X148 +X149 +X150 +X151
++ X154 +X156 +X157 +X160 +X163 +X164 +X165 +X168 +X172 +X173
++ X175 +X178 +X186 +X187 +X188 +X189 +X195 +X198 +X201 +X209
++ X210 +X211 +X212 +X213 +X214 +X216 +X217 +X219 +X220 +X223
++ X224 +X226 +X229 +X232 +X233 +X234 +X237 +X238 +X240 +X241
++ X243 +X244 +X247 +X250 +X252 +X253 +X254 +X255 +X261 +X277
++ X280 +X283 +X286 +X289 +X291 +X292 +X293 +X294 +X295 +X296
++ X297 +X298 +X300 +X301 +X302 +X304 +X307 +X309 +X310 +X311
++ X312 +X321 +X327 +X330 +X331 +X334 +X337 +X340 +X342 +X343
++ X344 +X345 +X346 +X349 +X352 +X355 +X357 +X358 +X359 +X360
++ X376 +X388 +X391 +X396 +X397 +X398 +X399 +X421 +X426 +X427
++ X428 +X429 +X445 +X448 +X457 +X458 +X459 +X460 +X461 +X462
++ X463 + X464 + X465, data = data)
+```
+
+Backward Elimination:
+
+Remove X122:
+```{r}
+#lmod without X122
+lmod <- update(lmod, . ~ . - X122)
+
+#lmod without X122 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X143 because it has the max p-value:
+```{r}
+#lmod without X143
+lmod <- update(lmod, . ~ . - X143)
+
+#lmod without X143 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X7 because it has the max p-value:
+```{r}
+#lmod without X7
+lmod <- update(lmod, . ~ . - X7)
+
+#lmod without X7 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X298 because it has the max p-value:
+```{r}
+#lmod without X298
+lmod <- update(lmod, . ~ . - X298)
+
+#lmod without X298 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X97 because it has the max p-value:
+```{r}
+#lmod without X97
+lmod <- update(lmod, . ~ . - X97)
+
+#lmod without X97 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X212 because it has the max p-value:
+```{r}
+#lmod without X212
+lmod <- update(lmod, . ~ . - X212)
+
+#lmod without X212 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X12 because it has the max p-value:
+```{r}
+#lmod without X12
+lmod <- update(lmod, . ~ . - X12)
+
+#lmod without X12 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X37 because it has the max p-value:
+```{r}
+#lmod without X37
+lmod <- update(lmod, . ~ . - X37)
+
+#lmod without X37 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X138 because it has the max p-value:
+```{r}
+#lmod without X138
+lmod <- update(lmod, . ~ . - X138)
+
+#lmod without X138 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X460 because it has the max p-value:
+```{r}
+#lmod without X460
+lmod <- update(lmod, . ~ . - X460)
+
+#lmod without X460 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X39 because it has the max p-value:
+```{r}
+#lmod without X39
+lmod <- update(lmod, . ~ . - X39)
+
+#lmod without X39 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X219 because it has the max p-value:
+```{r}
+#lmod without X219
+lmod <- update(lmod, . ~ . - X219)
+
+#lmod without X219 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X297 because it has the max p-value:
+```{r}
+#lmod without X297
+lmod <- update(lmod, . ~ . - X297)
+
+#lmod without X297 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X62 because it has the max p-value:
+```{r}
+#lmod without X62
+lmod <- update(lmod, . ~ . - X62)
+
+#lmod without X62 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X30.1 because it has the max p-value:
+```{r}
+#lmod without X30.1 
+lmod <- update(lmod, . ~ . - X30.1)
+
+#lmod without X30.1 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X36.1 because it has the max p-value:
+```{r}
+#lmod without X36.1
+lmod <- update(lmod, . ~ . - X36.1)
+
+#lmod without X36.1 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X461 because it has the max p-value:
+```{r}
+#lmod without X461
+lmod <- update(lmod, . ~ . - X461)
+
+#lmod without X461 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X463 because it has the max p-value:
+```{r}
+#lmod without X463
+lmod <- update(lmod, . ~ . - X463)
+
+#lmod without X463 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X48 because it has the max p-value:
+```{r}
+#lmod without X48 
+lmod <- update(lmod, . ~ . - X48)
+
+#lmod without X48 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X355 because it has the max p-value:
+```{r}
+#lmod without X355 
+lmod <- update(lmod, . ~ . - X355)
+
+#lmod without X355 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X237 because it has the max p-value:
+```{r}
+#lmod without X237  
+lmod <- update(lmod, . ~ . - X237)
+
+#lmod without X237 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X96 because it has the max p-value:
+```{r}
+#lmod without X96   
+lmod <- update(lmod, . ~ . - X96)
+
+#lmod without X96 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X21 because it has the max p-value:
+```{r}
+#lmod without X21   
+lmod <- update(lmod, . ~ . - X21)
+
+#lmod without X21 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X173 because it has the max p-value:
+```{r}
+#lmod without X173   
+lmod <- update(lmod, . ~ . - X173)
+
+#lmod without X173 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X73 because it has the max p-value:
+```{r}
+#lmod without X73   
+lmod <- update(lmod, . ~ . - X73)
+
+#lmod without X73 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X58 because it has the max p-value:
+```{r}
+#lmod without X58   
+lmod <- update(lmod, . ~ . - X58)
+
+#lmod without X58 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X296 because it has the max p-value:
+```{r}
+#lmod without X296   
+lmod <- update(lmod, . ~ . - X296)
+
+#lmod without X296 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X40.1 because it has the max p-value:
+```{r}
+#lmod without X40.1   
+lmod <- update(lmod, . ~ . - X40.1)
+
+#lmod without X40.1 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X327 because it has the max p-value:
+```{r}
+#lmod without X327   
+lmod <- update(lmod, . ~ . - X327)
+
+#lmod without X327 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X100 because it has the max p-value:
+```{r}
+#lmod without X100   
+lmod <- update(lmod, . ~ . - X100)
+
+#lmod without X100 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X311 because it has the max p-value:
+```{r}
+#lmod without X311   
+lmod <- update(lmod, . ~ . - X311)
+
+#lmod without X311 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X103 because it has the max p-value:
+```{r}
+#lmod without X103   
+lmod <- update(lmod, . ~ . - X103)
+
+#lmod without X103 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X6 because it has the max p-value:
+```{r}
+#lmod without X6   
+lmod <- update(lmod, . ~ . - X6)
+
+#lmod without X6 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X9 because it has the max p-value:
+```{r}
+#lmod without X9   
+lmod <- update(lmod, . ~ . - X9)
+
+#lmod without X9 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X359 because it has the max p-value:
+```{r}
+#lmod without X359   
+lmod <- update(lmod, . ~ . - X359)
+
+#lmod without X359 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X118 because it has the max p-value:
+```{r}
+#lmod without X118   
+lmod <- update(lmod, . ~ . - X118)
+
+#lmod without X118 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X243 because it has the max p-value:
+```{r}
+#lmod without X243   
+lmod <- update(lmod, . ~ . - X243)
+
+#lmod without X243 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X247 because it has the max p-value:
+```{r}
+#lmod without X247   
+lmod <- update(lmod, . ~ . - X247)
+
+#lmod without X247 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X156 because it has the max p-value:
+```{r}
+#lmod without X156   
+lmod <- update(lmod, . ~ . - X156)
+
+#lmod without X156 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X398 because it has the max p-value:
+```{r}
+#lmod without X398   
+lmod <- update(lmod, . ~ . - X398)
+
+#lmod without X398 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X137 because it has the max p-value:
+```{r}
+#lmod without X137   
+lmod <- update(lmod, . ~ . - X137)
+
+#lmod without X137 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X428 because it has the max p-value:
+```{r}
+#lmod without X428   
+lmod <- update(lmod, . ~ . - X428)
+
+#lmod without X428 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X321 because it has the max p-value:
+```{r}
+#lmod without X321   
+lmod <- update(lmod, . ~ . - X321)
+
+#lmod without X321 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X129 because it has the max p-value:
+```{r}
+#lmod without X129   
+lmod <- update(lmod, . ~ . - X129)
+
+#lmod without X129 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X59 because it has the max p-value:
+```{r}
+#lmod without X59   
+lmod <- update(lmod, . ~ . - X59)
+
+#lmod without X59 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X140 because it has the max p-value:
+```{r}
+#lmod without X140   
+lmod <- update(lmod, . ~ . - X140)
+
+#lmod without X140 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X261 because it has the max p-value:
+```{r}
+#lmod without X261   
+lmod <- update(lmod, . ~ . - X261)
+
+#lmod without X261 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X45.1 because it has the max p-value:
+```{r}
+#lmod without X45.1   
+lmod <- update(lmod, . ~ . - X45.1)
+
+#lmod without X45.1 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X211 because it has the max p-value:
+```{r}
+#lmod without X211   
+lmod <- update(lmod, . ~ . - X211)
+
+#lmod without X211 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X139 because it has the max p-value:
+```{r}
+#lmod without X139   
+lmod <- update(lmod, . ~ . - X139)
+
+#lmod without X139 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X15.1 because it has the max p-value:
+```{r}
+#lmod without X15.1   
+lmod <- update(lmod, . ~ . - X15.1)
+
+#lmod without X15.1 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X342 because it has the max p-value:
+```{r}
+#lmod without X342   
+lmod <- update(lmod, . ~ . - X342)
+
+#lmod without X342 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X67 because it has the max p-value:
+```{r}
+#lmod without X67   
+lmod <- update(lmod, . ~ . - X67)
+
+#lmod without X67 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X82 because it has the max p-value:
+```{r}
+#lmod without X82   
+lmod <- update(lmod, . ~ . - X82)
+
+#lmod without X82 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X457 because it has the max p-value:
+```{r}
+#lmod without X457   
+lmod <- update(lmod, . ~ . - X457)
+
+#lmod without X457 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X292 because it has the max p-value:
+```{r}
+#lmod without X292   
+lmod <- update(lmod, . ~ . - X292)
+
+#lmod without X292 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X448 because it has the max p-value:
+```{r}
+#lmod without X448   
+lmod <- update(lmod, . ~ . - X448)
+
+#lmod without X448 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X90 because it has the max p-value:
+```{r}
+#lmod without X90   
+lmod <- update(lmod, . ~ . - X90)
+
+#lmod without X90 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X142 because it has the max p-value:
+```{r}
+#lmod without X142   
+lmod <- update(lmod, . ~ . - X142)
+
+#lmod without X142 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X69 because it has the max p-value:
+```{r}
+#lmod without X69   
+lmod <- update(lmod, . ~ . - X69)
+
+#lmod without X69 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X60 because it has the max p-value:
+```{r}
+#lmod without X60   
+lmod <- update(lmod, . ~ . - X60)
+
+#lmod without X60 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X145 because it has the max p-value:
+```{r}
+#lmod without X145   
+lmod <- update(lmod, . ~ . - X145)
+
+#lmod without X145 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X195 because it has the max p-value:
+```{r}
+#lmod without X195   
+lmod <- update(lmod, . ~ . - X195)
+
+#lmod without X195 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X123 because it has the max p-value:
+```{r}
+#lmod without X123   
+lmod <- update(lmod, . ~ . - X123)
+
+#lmod without X123 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X302 because it has the max p-value:
+```{r}
+#lmod without X302   
+lmod <- update(lmod, . ~ . - X302)
+
+#lmod without X302 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X300 because it has the max p-value:
+```{r}
+#lmod without X300   
+lmod <- update(lmod, . ~ . - X300)
+
+#lmod without X300 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X312 because it has the max p-value:
+```{r}
+#lmod without X312   
+lmod <- update(lmod, . ~ . - X312)
+
+#lmod without X312 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X84 because it has the max p-value:
+```{r}
+#lmod without X84   
+lmod <- update(lmod, . ~ . - X84)
+
+#lmod without X84 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X147 because it has the max p-value:
+```{r}
+#lmod without X147   
+lmod <- update(lmod, . ~ . - X147)
+
+#lmod without X147 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X291 because it has the max p-value:
+```{r}
+#lmod without X291   
+lmod <- update(lmod, . ~ . - X291)
+
+#lmod without X291 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X66 because it has the max p-value:
+```{r}
+#lmod without X66   
+lmod <- update(lmod, . ~ . - X66)
+
+#lmod without X66 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X462 because it has the max p-value:
+```{r}
+#lmod without X462   
+lmod <- update(lmod, . ~ . - X462)
+
+#lmod without X462 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X10 because it has the max p-value:
+```{r}
+#lmod without X10   
+lmod <- update(lmod, . ~ . - X10)
+
+#lmod without X10 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X47 because it has the max p-value:
+```{r}
+#lmod without X47   
+lmod <- update(lmod, . ~ . - X47)
+
+#lmod without X47 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X304 because it has the max p-value:
+```{r}
+#lmod without X304   
+lmod <- update(lmod, . ~ . - X304)
+
+#lmod without X304 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X301 because it has the max p-value:
+```{r}
+#lmod without X301   
+lmod <- update(lmod, . ~ . - X301)
+
+#lmod without X301 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X343 because it has the max p-value:
+```{r}
+#lmod without X343   
+lmod <- update(lmod, . ~ . - X343)
+
+#lmod without X343 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X337 because it has the max p-value:
+```{r}
+#lmod without X337   
+lmod <- update(lmod, . ~ . - X337)
+
+#lmod without X337 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X334 because it has the max p-value:
+```{r}
+#lmod without X334   
+lmod <- update(lmod, . ~ . - X334)
+
+#lmod without X334 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X459 because it has the max p-value:
+```{r}
+#lmod without X459   
+lmod <- update(lmod, . ~ . - X459)
+
+#lmod without X459 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X458 because it has the max p-value:
+```{r}
+#lmod without X458   
+lmod <- update(lmod, . ~ . - X458)
+
+#lmod without X458 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X209 because it has the max p-value:
+```{r}
+#lmod without X209   
+lmod <- update(lmod, . ~ . - X209)
+
+#lmod without X209 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X216 because it has the max p-value:
+```{r}
+#lmod without X216   
+lmod <- update(lmod, . ~ . - X216)
+
+#lmod without X216 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X15 because it has the max p-value:
+```{r}
+#lmod without X15   
+lmod <- update(lmod, . ~ . - X15)
+
+#lmod without X15 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X44.1 because it has the max p-value:
+```{r}
+#lmod without X44.1   
+lmod <- update(lmod, . ~ . - X44.1)
+
+#lmod without X44.1 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X5 because it has the max p-value:
+```{r}
+#lmod without X5   
+lmod <- update(lmod, . ~ . - X5)
+
+#lmod without X5 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X360 because it has the max p-value:
+```{r}
+#lmod without X360   
+lmod <- update(lmod, . ~ . - X360)
+
+#lmod without X360 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X399 because it has the max p-value:
+```{r}
+#lmod without X399   
+lmod <- update(lmod, . ~ . - X399)
+
+#lmod without X399 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X19 because it has the max p-value:
+```{r}
+#lmod without X19   
+lmod <- update(lmod, . ~ . - X19)
+
+#lmod without X19 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X429 because it has the max p-value:
+```{r}
+#lmod without X429   
+lmod <- update(lmod, . ~ . - X429)
+
+#lmod without X429 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X232 because it has the max p-value:
+```{r}
+#lmod without X232   
+lmod <- update(lmod, . ~ . - X232)
+
+#lmod without X232 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X79 because it has the max p-value:
+```{r}
+#lmod without X79   
+lmod <- update(lmod, . ~ . - X79)
+
+#lmod without X79 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X76 because it has the max p-value:
+```{r}
+#lmod without X76   
+lmod <- update(lmod, . ~ . - X76)
+
+#lmod without X76 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X126 because it has the max p-value:
+```{r}
+#lmod without X126   
+lmod <- update(lmod, . ~ . - X126)
+
+#lmod without X126 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X125 because it has the max p-value:
+```{r}
+#lmod without X125   
+lmod <- update(lmod, . ~ . - X125)
+
+#lmod without X125 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X74 because it has the max p-value:
+```{r}
+#lmod without X74   
+lmod <- update(lmod, . ~ . - X74)
+
+#lmod without X74 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X71 because it has the max p-value:
+```{r}
+#lmod without X71   
+lmod <- update(lmod, . ~ . - X71)
+
+#lmod without X71 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X65 because it has the max p-value:
+```{r}
+#lmod without X65   
+lmod <- update(lmod, . ~ . - X65)
+
+#lmod without X65 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X116 because it has the max p-value:
+```{r}
+#lmod without X116   
+lmod <- update(lmod, . ~ . - X116)
+
+#lmod without X116 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X43.1 because it has the max p-value:
+```{r}
+#lmod without X43.1   
+lmod <- update(lmod, . ~ . - X43.1)
+
+#lmod without X43.1 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X33 because it has the max p-value:
+```{r}
+#lmod without X33   
+lmod <- update(lmod, . ~ . - X33)
+
+#lmod without X33 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X49 because it has the max p-value:
+```{r}
+#lmod without X49   
+lmod <- update(lmod, . ~ . - X49)
+
+#lmod without X49 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X32.1 because it has the max p-value:
+```{r}
+#lmod without X32.1   
+lmod <- update(lmod, . ~ . - X32.1)
+
+#lmod without X32.1 p-values
+summary(lmod)$coefficients[,4]
+```
+
+Finding max p-value:
+```{r}
+which.max(summary(lmod)$coefficients[,4])
+```
+
+Removing X388 because it has the max p-value:
+```{r}
+#lmod without X388   
+lmod <- update(lmod, . ~ . - X388)
+
+#lmod without X388 p-values
+summary(lmod)
+```
+
+__I don't want to take any predictors out that have p-values less than 0.05 because those are significant. So, X388 is the last predictor that I want to remove because it was the last predictor whose p-value was above 0.05.__
+
+
+R^2: The R^2 tells us that 99.95% of the variance found in density can be explained by the predictors. Usually, the R^2 value tells how well our model fits the data, but since there are a lot of predictors, this value isn't accurate anymore.
+
+
+# Checking for High Leverages:
+
+```{r}
+hat_val <- hatvalues(lmod)
+head(hat_val)
+```
+
+```{r}
+library(faraway)
+predictors <- row.names(data)
+halfnorm(hat_val,labs=predictors,ylab="Leverages")
+```
+
+Since values 5 and 44 are labeled, that means that they are large leverage points.
+
+# Checking for Outliers:
+
+Finding Studentized Residuals:
+
+```{r}
+r_stud <- rstudent(lmod)
+r_stud
+```
+
+Look for the studentized residuals greater than abs(3). Those are the outliers. Based on this, it looks like the values 329, 331, 36, and 334 are outliers.
+
+# Checking for Influential Points:
+
+```{r}
+library(faraway)
+cook_distance = cooks.distance(lmod)
+halfnorm(cook_distance, ylab="Cook’s distances")
+```
+
+Values 331 and 36 are the influential points because they are labeled.
+
+# Check the structure of the relationship between the predictors and the response.
+
+
+Making avplots with a few different predictors on the x-axis to get somewhat of an idea of the correlation between different predictors and density. I will only do a few of the predictors because there are just too many to do all of them.
+```{r}
+#install.packages("car")
+library(car)
+library(tidyverse)
+library(carData)
+```
+
+```{r}
+avPlot(lmod,'X16')
+```
+
+There seems to be a slight negative linear relationship between the predictor X16 and the response density.
+
+```{r}
+avPlot(lmod,'X17')
+```
+
+There seems to be a slight negative linear relationship between the predictor X17 and the response density.
+
+```{r}
+avPlot(lmod,'X18')
+```
+
+There seems to be a slight positive linear relationship between the predictor X18 and the response density.
+
+```{r}
+avPlot(lmod,'X20')
+```
+
+There seems to be a slight positive linear relationship between the predictor X20 and the response density.
+
+__Overall, there seems to be a slight linear relationship between each of the predictors and the response density. Maybe that's not true for all of the predictors, but it at least holds true for some of them.__
+
+# Checking Model Assumptions: independence of errors
+
+Since there are so many predictors, most likely there will be collinearity issues meaning that not all of the predictors are independent.
+
+### Checking for Collinearity
+
+__Computing the eigenvalues and condition numbers:__
+
+Doing eigenvalue test:
+```{r}
+x <- model.matrix(lmod)[,-1]
+e <- eigen(t(x) %*% x)
+e$val
+```
+
+These are the condition numbers also known as ratios:
+```{r}
+sqrt(e$val[1]/e$val)
+```
+
+If the eigenvalues and the condition numbers (aka ratios) are between 0 and 1 then there are no collinearity issues. If the eigenvalues are not in between 0 and 1 and the condition numbers are really big then that means that there could be collinearity issues. In this case, both the eigenvalues and the condition numbers are really big, so there could be collinearity issues.
+
+
+### VIF
+
+Vif helps also helps determine collinearity. The higher the vif numbers then the higher the correlation.
+
+```{r}
+library(car)
+vif(lmod)
+```
+
+Unfortunately, for this set of predictors we can't get any vif values.
+
+### Principle Component Analysis (PCA)
+
+Since there are a lot of predictors and collinearity exists, we do PCA.
+
+```{r}
+data_pca <- prcomp(data[,c("X16", "X17", "X18", "X20", "X22", "X23", "X24", 
+    "X25", "X26", "X27", "X28", "X29", "X30", "X31", "X32", "X34", "X35", 
+    "X36", "X38", "X40", "X41", "X43", "X44", "X45", "X46", "X1", "X2", 
+    "X3", "X4", "X8", "X11", "X13", "X14", "X16.1", "X18.1", "X19.1", 
+    "X20.1", "X21.1", "X22.1", "X25.1", "X27.1", "X28.1", "X29.1", "X31.1",
+    "X33.1", "X34.1", "X35.1", "X37.1", "X38.1", "X39.1", "X41.1", "X42.1", 
+    "X50", "X51", "X53", "X54", "X56", "X57", "X61", "X63", "X64", "X68", 
+    "X70", "X72", "X75", "X78", "X80", "X81", "X85", "X86", "X87", "X89", 
+    "X91", "X93", "X94", "X99", "X106", "X109", "X111", "X112", "X113", 
+    "X114", "X119", "X120", "X132", "X135", "X141", "X144", "X148", "X149", 
+    "X150", "X151", "X154", "X157", "X160", "X163", "X164", "X165", "X168", 
+    "X172", "X175", "X178", "X186", "X187", "X188", "X189", "X198", "X201", 
+    "X210", "X213", "X214", "X217", "X220", "X223", "X224", "X226", "X229", 
+    "X233", "X234", "X238", "X240", "X241", "X244", "X250", "X252", "X253", 
+    "X254", "X255", "X277", "X280", "X283", "X286", "X289", "X293", "X294",
+    "X295", "X307", "X309", "X310", "X330", "X331", "X340", "X344", "X345", 
+    "X346", "X349", "X352", "X357", "X358", "X376", "X391", "X396", "X397", 
+    "X421", "X426", "X427", "X445", "X464", "X465")])
+
+
+summary(data_pca)
+```
+
+From this summary, it seems like the first principal component explains 99.30% of the variation in the data whereas the other components don’t explain a lot more at all about the variance. So, we could use only the first principal component (aka PC) and not bother with using the others.
+
+
+But to double check, we plot the standard deviations of all of the principal components:
+```{r}
+#sdev and SD both represent standard deviation
+plot(data_pca$sdev,type="l",ylab="SD of PC", xlab="PC number")
+```
+
+We're looking for an "elbow" in the plot, and it's really hard to see exactly where it happens on this plot. It should happen at the second PC because that would back up the claim that was just made above after looking at the summary. So, here is a zoomed in version of the plot:
+```{r}
+#sdev and SD both represent standard deviation
+plot(data_pca$sdev, xlim=c(0,8), type="l",ylab="SD of PC", xlab="PC number")
+```
+
+The “elbow” is at 2 which means that we should use only the first PC based on this plot, as well
+
+
+# Checking Model Assumptions: normally distributed errors, constant variance, and linear relationship
+
+First, let's check for normally distributed errors by looking at the qqplots and histograms.
+And let's check for constant variance by looking at the residuals vs fitted plot.
+And let's check for a linear relationship between data.
+```{r}
+plot(fitted(lmod), residuals(lmod), xlab="Fitted", ylab="Residuals",  main = "Residuals vs Fitted")
+abline(h=0)
+
+#Q-Q Plot
+qqnorm(residuals(lmod), ylab="Residuals", main="Normal Q-Q Plot")
+qqline(residuals(lmod))
+
+#histogram
+hist(residuals(lmod))
+
+#Residuals vs Fitted Plot with lowess smoother (red line)
+plot(lmod, 1)
+```
+
+__Residual vs Fitted Plot:__ Based on this residual vs fitted plot, it looks like the variance is not constant because there is a pattern within the data points. It seems like some of the points on the left side of the graph are spaced farther apart than the points elsewhere.
+
+__Q-Q Plot:__ Based on this Q-Q plot, the residuals don't follow a normal distribution. In fact, they have a heavy tail distribution because of where the data points are  and because the slope of the line is small.
+
+__Histogram:__ Based on this histogram, it seems like the residuals are somewhat normally distributed though because of the bell shaped curve. Although, it's not completely in the center of the x-axis.
+
+__Residuals vs Fitted Plot with lowess smoother (red line):__ This plot tells if your data is linearly related. If the red line is pretty straight and is at Residuals = 0, then your data is linearly related. Since that is what we have, that error assumption holds true for our model. So, we don't have to try and fix anything for this specific model assumption.
+
+
+# Transformations
+
+We can fix not normally distributed errors and non-constant variance by doing different transformations. For example, we can try different transformations of the response such as, log, inverse, square root, or boxcox.
+
+
+Trying the Boxcox Transformation:
+```{r}
+#install.packages("MASS")
+library(MASS)
+```
+
+```{r}
+box_cox <- boxcox(lmod, lambda = seq(-5, 6, by=0.1)) #lambdas by default were from -2 to 2 but the graph didn't look as good that's why lambdas are now -5 to 6
+```
+
+
+```{r}
+#best lambda
+lambda <- box_cox$x[which.max(box_cox$y)]
+data$ystar <- (data$density^lambda-1)/lambda
+
+#plotting transformed lmod
+lmod_ystar <- lm(ystar ~ X16 + X17 + X18 + X20 + X22 + X23 + X24 + 
+    X25 + X26 + X27 + X28 + X29 + X30 + X31 + X32 + X34 + X35 + 
+    X36 + X38 + X40 + X41 + X43 + X44 + X45 + X46 + X1 + X2 + 
+    X3 + X4 + X8 + X11 + X13 + X14 + X16.1 + X18.1 + X19.1 + 
+    X20.1 + X21.1 + X22.1 + X25.1 + X27.1 + X28.1 + X29.1 + X31.1 + 
+    X33.1 + X34.1 + X35.1 + X37.1 + X38.1 + X39.1 + X41.1 + X42.1 + 
+    X50 + X51 + X53 + X54 + X56 + X57 + X61 + X63 + X64 + X68 + 
+    X70 + X72 + X75 + X78 + X80 + X81 + X85 + X86 + X87 + X89 + 
+    X91 + X93 + X94 + X99 + X106 + X109 + X111 + X112 + X113 + 
+    X114 + X119 + X120 + X132 + X135 + X141 + X144 + X148 + X149 + 
+    X150 + X151 + X154 + X157 + X160 + X163 + X164 + X165 + X168 + 
+    X172 + X175 + X178 + X186 + X187 + X188 + X189 + X198 + X201 + 
+    X210 + X213 + X214 + X217 + X220 + X223 + X224 + X226 + X229 + 
+    X233 + X234 + X238 + X240 + X241 + X244 + X250 + X252 + X253 + 
+    X254 + X255 + X277 + X280 + X283 + X286 + X289 + X293 + X294 + 
+    X295 + X307 + X309 + X310 + X330 + X331 + X340 + X344 + X345 + 
+    X346 + X349 + X352 + X357 + X358 + X376 + X391 + X396 + X397 + 
+    X421 + X426 + X427 + X445 + X464 + X465, data = data)
+
+plot(fitted(lmod_ystar), residuals(lmod_ystar), xlab="Fitted", ylab="Residuals", main = "Transformed")
+abline(h=0)
+
+#Q-Q Plot
+qqnorm(residuals(lmod_ystar), ylab="Residuals", main="Normal Q-Q Plot")
+qqline(residuals(lmod_ystar))
+
+#histogram
+hist(residuals(lmod_ystar))
+```
+__Residual vs Fitted Plot:__ Based on this residual vs fitted plot, it looks like the variance is still not constant because there is a pattern within the data points. It still seems like some of the points on the left side of the graph are spaced farther apart than the points elsewhere. Although, a lot of the other points seem to have spread apart a little bit.
+
+__Q-Q Plot:__ Based on this Q-Q plot, the residuals still don't follow a normal distribution. In fact, they have a heavy tail distribution because of where the data points are and because the slope of the line is small.
+
+__Histogram:__ Based on this histogram, it seems like the residuals are somewhat normally distributed though because of the bell shaped curve. However, it's not really in the center of the x-axis still.
+
+
+Trying the log transformation on the response:
+```{r}
+lmod_log <- lm(log(density) ~ X16 + X17 + X18 + X20 + X22 + X23 + X24 + 
+    X25 + X26 + X27 + X28 + X29 + X30 + X31 + X32 + X34 + X35 + 
+    X36 + X38 + X40 + X41 + X43 + X44 + X45 + X46 + X1 + X2 + 
+    X3 + X4 + X8 + X11 + X13 + X14 + X16.1 + X18.1 + X19.1 + 
+    X20.1 + X21.1 + X22.1 + X25.1 + X27.1 + X28.1 + X29.1 + X31.1 + 
+    X33.1 + X34.1 + X35.1 + X37.1 + X38.1 + X39.1 + X41.1 + X42.1 + 
+    X50 + X51 + X53 + X54 + X56 + X57 + X61 + X63 + X64 + X68 + 
+    X70 + X72 + X75 + X78 + X80 + X81 + X85 + X86 + X87 + X89 + 
+    X91 + X93 + X94 + X99 + X106 + X109 + X111 + X112 + X113 + 
+    X114 + X119 + X120 + X132 + X135 + X141 + X144 + X148 + X149 + 
+    X150 + X151 + X154 + X157 + X160 + X163 + X164 + X165 + X168 + 
+    X172 + X175 + X178 + X186 + X187 + X188 + X189 + X198 + X201 + 
+    X210 + X213 + X214 + X217 + X220 + X223 + X224 + X226 + X229 + 
+    X233 + X234 + X238 + X240 + X241 + X244 + X250 + X252 + X253 + 
+    X254 + X255 + X277 + X280 + X283 + X286 + X289 + X293 + X294 + 
+    X295 + X307 + X309 + X310 + X330 + X331 + X340 + X344 + X345 + 
+    X346 + X349 + X352 + X357 + X358 + X376 + X391 + X396 + X397 + 
+    X421 + X426 + X427 + X445 + X464 + X465, data = data)
+
+plot(fitted(lmod_log), residuals(lmod_log), xlab="Fitted", ylab="Residuals", main = "Transformed")
+abline(h=0)
+
+#Q-Q Plot
+qqnorm(residuals(lmod_log), ylab="Residuals", main="Normal Q-Q Plot")
+qqline(residuals(lmod_log))
+
+#histogram
+hist(residuals(lmod_log))
+```
+
+__Residual vs Fitted Plot:__ Based on this residual vs fitted plot, it looks like the variance is still not constant because there is a pattern within the data points. It still seems like some of the points on the left side of the graph are spaced farther apart than the points elsewhere.
+
+__Q-Q Plot:__ Based on this Q-Q plot, the residuals still don't follow a normal distribution. In fact, they have a heavy tail distribution because of where the data points are and because the slope of the line is small.
+
+__Histogram:__ Based on this histogram, it seems like the residuals are somewhat normally distributed though because of the bell shaped curve. However, it's not completely in the center of the x-axis still.
+
+
+Trying the sqrt transformation on the response:
+```{r}
+lmod_sqrt <- lm(sqrt(density) ~ X16 + X17 + X18 + X20 + X22 + X23 + X24 + 
+    X25 + X26 + X27 + X28 + X29 + X30 + X31 + X32 + X34 + X35 + 
+    X36 + X38 + X40 + X41 + X43 + X44 + X45 + X46 + X1 + X2 + 
+    X3 + X4 + X8 + X11 + X13 + X14 + X16.1 + X18.1 + X19.1 + 
+    X20.1 + X21.1 + X22.1 + X25.1 + X27.1 + X28.1 + X29.1 + X31.1 + 
+    X33.1 + X34.1 + X35.1 + X37.1 + X38.1 + X39.1 + X41.1 + X42.1 + 
+    X50 + X51 + X53 + X54 + X56 + X57 + X61 + X63 + X64 + X68 + 
+    X70 + X72 + X75 + X78 + X80 + X81 + X85 + X86 + X87 + X89 + 
+    X91 + X93 + X94 + X99 + X106 + X109 + X111 + X112 + X113 + 
+    X114 + X119 + X120 + X132 + X135 + X141 + X144 + X148 + X149 + 
+    X150 + X151 + X154 + X157 + X160 + X163 + X164 + X165 + X168 + 
+    X172 + X175 + X178 + X186 + X187 + X188 + X189 + X198 + X201 + 
+    X210 + X213 + X214 + X217 + X220 + X223 + X224 + X226 + X229 + 
+    X233 + X234 + X238 + X240 + X241 + X244 + X250 + X252 + X253 + 
+    X254 + X255 + X277 + X280 + X283 + X286 + X289 + X293 + X294 + 
+    X295 + X307 + X309 + X310 + X330 + X331 + X340 + X344 + X345 + 
+    X346 + X349 + X352 + X357 + X358 + X376 + X391 + X396 + X397 + 
+    X421 + X426 + X427 + X445 + X464 + X465, data = data)
+
+plot(fitted(lmod_sqrt), residuals(lmod_sqrt), xlab="Fitted", ylab="Residuals", main = "Transformed")
+abline(h=0)
+
+#Q-Q Plot
+qqnorm(residuals(lmod_sqrt), ylab="Residuals", main="Normal Q-Q Plot")
+qqline(residuals(lmod_sqrt))
+
+#histogram
+hist(residuals(lmod_sqrt))
+```
+
+__Residual vs Fitted Plot:__ Based on this residual vs fitted plot, it looks like the variance is still not constant because there is a pattern within the data points. It still seems like some of the points on the left side of the graph are spaced farther apart than the points elsewhere.
+
+__Q-Q Plot:__ Based on this Q-Q plot, the residuals still don't follow a normal distribution. In fact, they have a heavy tail distribution because of where the data points are and because the slope of the line is small.
+
+__Histogram:__ Based on this histogram, it seems like the residuals are somewhat normally distributed though because of the bell shaped curve. However, it's still not really in the center of the x-axis.
+
+
+Trying the inverse transformation on the response:
+```{r}
+lmod_inverse <- lm(1/(density) ~ X16 + X17 + X18 + X20 + X22 + X23 + X24 + 
+    X25 + X26 + X27 + X28 + X29 + X30 + X31 + X32 + X34 + X35 + 
+    X36 + X38 + X40 + X41 + X43 + X44 + X45 + X46 + X1 + X2 + 
+    X3 + X4 + X8 + X11 + X13 + X14 + X16.1 + X18.1 + X19.1 + 
+    X20.1 + X21.1 + X22.1 + X25.1 + X27.1 + X28.1 + X29.1 + X31.1 + 
+    X33.1 + X34.1 + X35.1 + X37.1 + X38.1 + X39.1 + X41.1 + X42.1 + 
+    X50 + X51 + X53 + X54 + X56 + X57 + X61 + X63 + X64 + X68 + 
+    X70 + X72 + X75 + X78 + X80 + X81 + X85 + X86 + X87 + X89 + 
+    X91 + X93 + X94 + X99 + X106 + X109 + X111 + X112 + X113 + 
+    X114 + X119 + X120 + X132 + X135 + X141 + X144 + X148 + X149 + 
+    X150 + X151 + X154 + X157 + X160 + X163 + X164 + X165 + X168 + 
+    X172 + X175 + X178 + X186 + X187 + X188 + X189 + X198 + X201 + 
+    X210 + X213 + X214 + X217 + X220 + X223 + X224 + X226 + X229 + 
+    X233 + X234 + X238 + X240 + X241 + X244 + X250 + X252 + X253 + 
+    X254 + X255 + X277 + X280 + X283 + X286 + X289 + X293 + X294 + 
+    X295 + X307 + X309 + X310 + X330 + X331 + X340 + X344 + X345 + 
+    X346 + X349 + X352 + X357 + X358 + X376 + X391 + X396 + X397 + 
+    X421 + X426 + X427 + X445 + X464 + X465, data = data)
+
+plot(fitted(lmod_inverse), residuals(lmod_inverse), xlab="Fitted", ylab="Residuals", main = "Transformed")
+abline(h=0)
+
+#Q-Q Plot
+qqnorm(residuals(lmod_inverse), ylab="Residuals", main="Normal Q-Q Plot")
+qqline(residuals(lmod_inverse))
+
+#histogram
+hist(residuals(lmod_inverse))
+```
+
+__Residual vs Fitted Plot:__ Based on this residual vs fitted plot, it looks like the variance is still not constant because there is a pattern within the data points. It still seems like some of the points on the right side of the graph this time are spaced farther apart than the points elsewhere.
+
+__Q-Q Plot:__ Based on this Q-Q plot, the residuals still don't follow a normal distribution. In fact, they have a heavy tail distribution because of where the data points are and because the slope of the line is small.
+
+__Histogram:__ Based on this histogram, it seems like the residuals are somewhat normally distributed though because of the bell shaped curve. However, it's still not completely in the center of the x-axis.
+
+
+
+
+
+I also tried doing the log and inverse transformations of all of the predictors and the response, but there were some infinity values in the transformed data, so I would get an error. However, I could do the square root transformation of all of the predictors and the response.
+
+```{r}
+sqrt_data <- sqrt(data)
+head(sqrt_data)
+```
+
+```{r}
+lmod_transform_sqrt <- lm(density ~ X16 + X17 + X18 + X20 + X22 + X23 + X24 + 
+    X25 + X26 + X27 + X28 + X29 + X30 + X31 + X32 + X34 + X35 + 
+    X36 + X38 + X40 + X41 + X43 + X44 + X45 + X46 + X1 + X2 + 
+    X3 + X4 + X8 + X11 + X13 + X14 + X16.1 + X18.1 + X19.1 + 
+    X20.1 + X21.1 + X22.1 + X25.1 + X27.1 + X28.1 + X29.1 + X31.1 + 
+    X33.1 + X34.1 + X35.1 + X37.1 + X38.1 + X39.1 + X41.1 + X42.1 + 
+    X50 + X51 + X53 + X54 + X56 + X57 + X61 + X63 + X64 + X68 + 
+    X70 + X72 + X75 + X78 + X80 + X81 + X85 + X86 + X87 + X89 + 
+    X91 + X93 + X94 + X99 + X106 + X109 + X111 + X112 + X113 + 
+    X114 + X119 + X120 + X132 + X135 + X141 + X144 + X148 + X149 + 
+    X150 + X151 + X154 + X157 + X160 + X163 + X164 + X165 + X168 + 
+    X172 + X175 + X178 + X186 + X187 + X188 + X189 + X198 + X201 + 
+    X210 + X213 + X214 + X217 + X220 + X223 + X224 + X226 + X229 + 
+    X233 + X234 + X238 + X240 + X241 + X244 + X250 + X252 + X253 + 
+    X254 + X255 + X277 + X280 + X283 + X286 + X289 + X293 + X294 + 
+    X295 + X307 + X309 + X310 + X330 + X331 + X340 + X344 + X345 + 
+    X346 + X349 + X352 + X357 + X358 + X376 + X391 + X396 + X397 + 
+    X421 + X426 + X427 + X445 + X464 + X465, data = sqrt_data)
+lmod_transform_sqrt
+```
+
+```{r}
+plot(fitted(lmod_transform_sqrt), residuals(lmod_transform_sqrt), xlab="Fitted", ylab="Residuals", main = "Transformed")
+abline(h=0)
+
+#Q-Q Plot
+qqnorm(residuals(lmod_transform_sqrt), ylab="Residuals", main="Normal Q-Q Plot")
+qqline(residuals(lmod_transform_sqrt))
+
+#histogram
+hist(residuals(lmod_transform_sqrt))
+```
+
+__Residual vs Fitted Plot:__ Based on this residual vs fitted plot, it looks like the variance is still not constant because there is a pattern within the data points. It still seems like some of the points on the left side of the graph are spaced farther apart than the points elsewhere. Although, a lot of the other points seem to have spread apart a tiny bit.
+
+__Q-Q Plot:__ Based on this Q-Q plot, the residuals still don't follow a normal distribution. In fact, they have a heavy tail distribution because of where the data points are and because the slope of the line is small.
+
+__Histogram:__ Based on this histogram, it seems like the residuals are somewhat normally distributed though because of the bell shaped curve. However, it's still not really in the center of the x-axis.
+
+
+__Unfortunately, I couldn't transform the data to have errors that are normally distributed, constant variance, or for the errors to be independent. Although, it does seem like the data has a linear relationship. So, at least one model assumption is satisfied. Since this is complex real data, it might be harder to get all of these assumptions satisfied.__
