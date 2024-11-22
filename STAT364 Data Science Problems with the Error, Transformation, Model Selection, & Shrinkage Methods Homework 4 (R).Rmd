@@ -1,0 +1,558 @@
+---
+title: "STAT364 Data Science Problems with the Error, Transformation, Model Selection, & Shrinkage Methods Homework 4"
+author: "Kira Novitchkova-Burbank"
+output: rmdformats::material
+---
+# Chapter 8 Problem 1:
+
+### Researchers at National Institutes of Standards and Technology (NIST) collected pipeline data on ultrasonic measurements of the depth of defects in the Alaska pipeline in the field. The depth of the defects were then remeasured in the laboratory. These measurements were performed in six different batches. It turns out that this batch effect is not significant and so can be ignored in the analysis that follows. The laboratory measurements are more accurate than the in-field measurements, but more time consuming and expensive. We want to develop a regression equation for correcting the in-field measurements.
+
+### (a) Fit a regression model Lab ~ Field. Check for non-constant variance.
+
+```{r}
+library(faraway)
+data(pipeline, package = "faraway")
+summary(pipeline)
+```
+
+```{r}
+#residual vs fitted plot to check non constant variance
+lmod <- lm(Lab ~ Field, data = pipeline)
+plot(fitted(lmod), residuals(lmod))
+abline(h=0)
+```
+
+__Your answer:__ Based on this residual vs fitted plot, it seems like there is a small pattern so the variance is non-constant.
+
+
+### (b) We wish to use weights to account for the non-constant variance. Here we split the range of Field into 12 groups of size nine (except for the last group which has only eight values). Within each group, we compute the variance of Lab as varlab and the mean of Field as meanfield. Supposing pipeline is the name of your data frame, the following R code will make the needed computations:
+
+### Code from textbook (code chunk below)
+
+```{r}
+#code from textbook: Here we split the range of Field into 12 groups of size nine (except for the last group which has only eight values). Within each group, we compute the variance of Lab as varlab and the mean of Field as meanfield.
+
+i <- order(pipeline$Field)
+npipe <- pipeline[i,]
+ff <- gl(12,9)[-108]
+meanfield <- unlist(lapply(split(npipe$Field, ff), mean))
+varlab <- unlist(lapply(split(npipe$Lab, ff), var))
+```
+
+
+### Suppose we guess that the the variance in the response is linked to the predictor in the following way:
+
+### Equation from book (is something like this var(Lab)=a0Field^(a1))
+
+### Regress log(varlab) on log(meanfield) to estimate a0 and a1. (You might choose to remove the last point.) Use this to determine appropriate weights in a WLS fit of Lab on Field. Show the regression summary.
+
+```{r}
+#First create a data frame
+#Then Regress y on x so log(varlab) ~ log(meanfield)
+
+pipeline_varlab_meanfield_df <- data.frame(log_varlab = log(varlab), log_meanfield = log(meanfield))
+
+#determining weights
+#weight = 1/sqrt(varlab)
+
+pipeline_varlab_meanfield_lmod <- lm(log_varlab ~ log_meanfield, data = pipeline_varlab_meanfield_df, weights = 1/sqrt(varlab))
+
+summary(pipeline_varlab_meanfield_lmod)
+
+```
+
+__Your answer:__ log_meanfield has a p-value of 0.0133 which is < 0.05 which means that it is significant. So, we reject the null hypothesis.
+
+
+### (c) An alternative to weighting is transformation. Find transformations on Lab and/or Field so that in the transformed scale the relationship is approximately linear with constant variance. You may restrict your choice of transformation to square root, log and inverse.
+
+Trying different transformations: sqrt both Lab and Field
+```{r}
+#install.packages("matlib")
+
+library(matlib)
+pipeline_sqrt_df <- data.frame(sqrt_Lab = sqrt(pipeline$Lab), sqrt_Field = sqrt(pipeline$Field))
+pipeline_sqrt_lmod <- lm(sqrt_Lab ~ sqrt_Field, data = pipeline_sqrt_df)
+
+##residual vs fitted plot to check non constant variance
+plot(fitted(pipeline_sqrt_lmod), residuals(pipeline_sqrt_lmod))
+abline(h=0)
+```
+__Your answer:__ Based on this plot, it seems like there is non-constant variance.
+
+
+Trying different transformations: log both Lab and Field
+```{r}
+
+library(matlib)
+pipeline_log_df <- data.frame(log_Lab = log(pipeline$Lab), log_Field = log(pipeline$Field))
+pipeline_log_lmod <- lm(log_Lab ~ log_Field, data = pipeline_log_df)
+
+##residual vs fitted plot to check non constant variance
+plot(fitted(pipeline_log_lmod), residuals(pipeline_log_lmod))
+abline(h=0)
+
+```
+__Your answer:__ Based on this plot, it seems like the variance is almost constant.
+
+
+Trying different transformations: inverse both Lab and Field
+```{r}
+
+library(matlib)
+pipeline_inv_df <- data.frame(inv_Lab = 1/(pipeline$Lab), inv_Field = 1/(pipeline$Field))
+pipeline_inv_lmod <- lm(inv_Lab ~ inv_Field, data = pipeline_inv_df)
+
+##residual vs fitted plot to check non constant variance
+plot(fitted(pipeline_inv_lmod), residuals(pipeline_inv_lmod))
+abline(h=0)
+
+```
+__Your answer:__ Based on this plot, it seems like there is non-constant variance.
+
+
+Trying different transformations: sqrt only Lab
+```{r}
+
+library(matlib)
+pipeline_sqrt_df <- data.frame(sqrt_Lab = sqrt(pipeline$Lab), Field = pipeline$Field)
+pipeline_sqrt_lmod <- lm(sqrt_Lab ~ Field, data = pipeline_sqrt_df)
+
+##residual vs fitted plot to check non constant variance
+plot(fitted(pipeline_sqrt_lmod), residuals(pipeline_sqrt_lmod))
+abline(h=0)
+```
+__Your answer:__ Based on this plot, it seems like there is non-constant variance.
+
+
+Trying different transformations: sqrt only Field
+```{r}
+library(matlib)
+pipeline_sqrt_df <- data.frame(Lab = pipeline$Lab, sqrt_Field = sqrt(pipeline$Field))
+pipeline_sqrt_lmod <- lm(Lab ~ sqrt_Field, data = pipeline_sqrt_df)
+
+##residual vs fitted plot to check non constant variance
+plot(fitted(pipeline_sqrt_lmod), residuals(pipeline_sqrt_lmod))
+abline(h=0)
+```
+__Your answer:__ Based on this plot, it seems like there is non-constant variance.
+
+
+Trying different transformations: log only Lab
+```{r}
+
+library(matlib)
+pipeline_log_df <- data.frame(log_Lab = log(pipeline$Lab), Field = pipeline$Field)
+pipeline_log_lmod <- lm(log_Lab ~ Field, data = pipeline_log_df)
+
+##residual vs fitted plot to check non constant variance
+plot(fitted(pipeline_log_lmod), residuals(pipeline_log_lmod))
+abline(h=0)
+
+```
+__Your answer:__ Based on this plot, it seems like there is non-constant variance.
+
+
+Trying different transformations: log only Field
+```{r}
+
+library(matlib)
+pipeline_log_df <- data.frame(Lab = pipeline$Lab, log_Field = log(pipeline$Field))
+pipeline_log_lmod <- lm(Lab ~ log_Field, data = pipeline_log_df)
+
+##residual vs fitted plot to check non constant variance
+plot(fitted(pipeline_log_lmod), residuals(pipeline_log_lmod))
+abline(h=0)
+
+```
+__Your answer:__ Based on this plot, it seems like there is non-constant variance.
+
+
+Trying different transformations: inverse only Lab
+```{r}
+
+library(matlib)
+pipeline_inv_df <- data.frame(inv_Lab = 1/(pipeline$Lab), Field = pipeline$Field)
+pipeline_inv_lmod <- lm(inv_Lab ~ Field, data = pipeline_inv_df)
+
+##residual vs fitted plot to check non constant variance
+plot(fitted(pipeline_inv_lmod), residuals(pipeline_inv_lmod))
+abline(h=0)
+
+```
+__Your answer:__ Based on this plot, it seems like there is non-constant variance.
+
+
+Trying different transformations: inverse only Field
+```{r}
+
+library(matlib)
+pipeline_inv_df <- data.frame(Lab = pipeline$Lab, inv_Field = 1/(pipeline$Field))
+pipeline_inv_lmod <- lm(Lab ~ inv_Field, data = pipeline_inv_df)
+
+##residual vs fitted plot to check non constant variance
+plot(fitted(pipeline_inv_lmod), residuals(pipeline_inv_lmod))
+abline(h=0)
+
+```
+__Your answer:__ Based on this plot, it seems like there is non-constant variance.
+
+
+__Your answer:__ Out of all of these plots of the transformations, the plot with log of both Lab and Field had the most constant variance. So, it seems like that is the best transformation.
+
+
+# Chapter 9 Problem 3
+
+### Using the ozone data, fit a model with O3 as the response and temp, humidity and ibh as predictors. Use the Box–Cox method to determine the best transformation on the response.
+
+```{r}
+library(faraway)
+data(ozone, package = "faraway")
+summary(ozone)
+```
+
+```{r}
+lmod <- lm(O3 ~ temp + humidity + ibh, data = ozone)
+summary(lmod)
+```
+__Your answer:__ The R^2 value is 0.684. That means that 68.4% of the variance of the response is explained by the predictors before the boxcox transformation.
+
+
+```{r}
+#install.packages("MASS")
+library(MASS)
+box_cox <- boxcox(lmod, lambda = seq(-2, 3, by=0.1)) #lambdas by default were from -2 to 2 but the graph didn't look as good that's why lambdas are now -2 to 3
+```
+
+```{r}
+#best lambda
+lambda <- box_cox$x[which.max(box_cox$y)]
+ozone$ystar <- (ozone$O3^lambda-1)/lambda
+
+#plotting transformed lmod
+lmod_ystar <- lm(ystar ~ temp + humidity + ibh, data = ozone)
+plot(fitted(lmod_ystar), residuals(lmod_ystar), xlab="Fitted", ylab="Residuals", main = "Transformed")
+abline(h=0)
+
+```
+
+```{r}
+summary(lmod_ystar)
+```
+
+__Your answer:__ The R^2 value increased to 0.716 after the boxcox transformation. That means that 71.6% of the variance of the response is explained by the predictors after the boxcox transformation.
+
+
+# Chapter 10 Problem 1
+
+## Use the prostate data with lpsa as the response and the other variables as predictors. Implement the following variable selection methods to determine the “best” model: (a) Backward elimination
+
+```{r}
+library(faraway)
+data(prostate, package = "faraway")
+summary(prostate)
+```
+
+```{r}
+lmod <- lm(lpsa ~., data = prostate)
+summary(lmod)
+```
+
+__Your answer:__ Remove the predictor with the highest p-value. In this case, the predictor is gleason with a p-value of 0.77503. Then, fit the model again without it.
+
+
+Fit the model without gleason:
+```{r}
+lmod <- update(lmod, . ~ . - gleason)
+summary(lmod)
+```
+
+__Your answer:__ Remove the predictor with the highest p-value. In this case, the predictor is lcp with a p-value of 0.25127. Then, fit the model again without it.
+
+
+Fit the model without lcp:
+```{r}
+lmod <- update(lmod, . ~ . - lcp)
+summary(lmod)
+```
+
+__Your answer:__ Remove the predictor with the highest p-value. In this case, the predictor is pgg45 with a p-value of 0.25331. Then, fit the model again without it.
+
+
+Fit the model without pgg45:
+```{r}
+lmod <- update(lmod, . ~ . - pgg45)
+summary(lmod)
+```
+
+__Your answer:__ Remove the predictor with the highest p-value. In this case, the predictor is age with a p-value of 0.169528. Then, fit the model again without it.
+
+
+Fit the model without age:
+```{r}
+lmod <- update(lmod, . ~ . - age)
+summary(lmod)
+```
+
+__Your answer:__ Remove the predictor with the highest p-value. In this case, the predictor is lbph with a p-value of 0.11213. Then, fit the model again without it.
+
+
+Fit the model without lbph:
+```{r}
+lmod <- update(lmod, . ~ . - lbph)
+summary(lmod)
+```
+
+__Your answer:__ None of the predictors have non significant p-values (p-values > 0.05). So, you don't remove anymore predictors because this is the best model based on backward elimination. So, the best model has the 3 predictors that are lcavol, lweight, and svi.
+
+
+## (b) AIC
+
+```{r}
+summary(step(lm(lpsa ~ ., data = prostate), direction="backward"))
+```
+
+__Your answer:__ Based on AIC, the best model has the 5 predictors lcavol, lweight, age, lbph, and svi.
+
+
+## (c) Adjusted R2
+
+```{r}
+#install.packages("leaps")
+library(leaps)
+b <- regsubsets(lpsa ~ ., data = prostate)
+rs <- summary(b)
+rs$which
+```
+
+```{r}
+#Adjusted R^2 values
+rs$adjr2
+```
+
+```{r}
+plot(1:8, rs$adjr2, xlab = "Number of Parameters", ylab = "Adjusted R-square")
+```
+
+__Your answer:__ Based on the Adjusted R-squared values, the best model has 7 parameters because it had the highest Adjusted R-squared value.
+
+
+## (d) Mallows Cp
+
+```{r}
+rs #rs is summary(b)
+```
+
+
+```{r}
+plot(1:8, rs$cp, xlab = "Number of Parameters", ylab = "Cp Statistic")
+abline(0,1)
+```
+
+__Your answer:__ Based on Mallows Cp, good models are the models that have a Cp statistic that is less than the number of predictors + 1. However, in this case, there is no best model because for the x value (which is the number of parameters on this plot) with the lowest Cp statistic which is 4 (4 parameters), the Cp statistic is still above 5.
+
+
+# Chapter 10 Problem 6
+
+### Use the seatpos data with hipcenter as the response. (a) Fit a model with all eight predictors. Comment on the effect of leg length on the response.
+
+```{r}
+data(seatpos, package = "faraway")
+summary(seatpos)
+```
+
+```{r}
+lmod <- lm(hipcenter ~ Age + Weight + HtShoes + Ht + Seated + Arm + Thigh + Leg, data = seatpos)
+summary(lmod)
+```
+
+__Your answer:__ For 1 unit of increase in leg length, the response hipcenter decreases by -6.43905 units.
+
+
+### (b) Compute a 95% prediction interval for the mean value of the predictors.
+
+```{r}
+x <- model.matrix(lmod)
+x0 <- apply(x, 2, mean)
+
+#computing 95% prediction interval
+predict <- predict(lmod, newdata = data.frame(t(x0)), interval="prediction")
+predict
+```
+
+__Your answer:__ The 95% prediction interval is (-243.04, -86.72972).
+
+
+### (c) Use AIC to select a model. Now interpret the effect of leg length and compute the prediction interval. Compare the conclusions from the two models.
+
+```{r}
+summary(step(lm(hipcenter ~ ., data = seatpos), direction="backward"))
+```
+
+__Your answer:__ For every 1 unit of increase in leg length, the response hipcenter decreases by -6.8297 units. Compared to the previous model which had for 1 unit of increase in leg length, the response hipcenter decreases by -6.43905 units. Seems like this AIC selected model has a slightly steeper negative slope compared to that of the previous model.
+
+```{r}
+lmod <- lm(hipcenter ~ Age + HtShoes + Leg, data = seatpos)
+
+x <- model.matrix(lmod)
+x0 <- apply(x, 2, mean)
+
+#computing 95% prediction interval
+predict <- predict(lmod, newdata = data.frame(t(x0)), interval="prediction")
+predict
+```
+
+__Your answer:__ The 95% prediction interval is (-237.209, -92.56072). Compared to the 95% prediction interval of the previous model which is (-243.04, -86.72972). It seems like the 95% prediction interval is a little narrower than that of the previous model.
+
+
+# Chapter 11 Problem 1
+
+### Using the seatpos data, perform a PCR analysis with hipcenter as the response and HtShoes, Ht, Seated, Arm, Thigh and Leg as predictors. Select an appropriate number of components and give an interpretation to those you choose. Add Age and Weight as predictors and repeat the analysis. Use both models to predict the response for predictors taking these values:
+
+Data from textbook:
+Age <- 64.800  Weight <- 263.700  HtShoes <- 181.080  Ht <- 178.560   Seated <- 91.440  Arm <- 35.640  Thigh <- 40.950  Leg <- 38.790
+
+```{r}
+seatpos_pca <- prcomp(seatpos[,3:8])
+seatpos_pca
+```
+
+```{r}
+summary(seatpos_pca)
+```
+
+__Your answer:__ From this summary, it seems like the first principal component explains 94.53% of the variation in the data whereas the other components don't explain a lot more about the variance. So, we could use only the first PC.
+
+
+But to double check, we plot the standard deviations of the principal components:
+```{r}
+#sdev and SD both represent standard deviation
+plot(seatpos_pca$sdev,type="l",ylab="SD of PC", xlab="PC number")
+```
+
+__Your answer:__ The "elbow" is at 2 which means that we should use only the first PC based on this plot, as well.
+
+
+Now predict the response for predictors taking these values:
+```{r}
+#note to self: use pcr function to do principal component regression and not lm (even though it looks similar)
+
+#install.packages("pls")
+library(pls)
+pcr_seatpos <- pcr(hipcenter ~ HtShoes + Ht + Seated + Arm + Thigh + Leg, data = seatpos, ncomp = 1) #ncomp is 1 because we're using only 1 PC
+summary(pcr_seatpos)
+```
+
+```{r}
+Age <- 64.800
+Weight <- 263.700 
+HtShoes <- 181.080
+Ht <- 178.560
+Seated <- 91.440
+Arm <- 35.640
+Thigh <- 40.950
+Leg <- 38.790
+```
+
+
+```{r}
+x0 <- c(Age, Weight, HtShoes, Ht, Seated, Arm, Thigh, Leg)
+predict(pcr_seatpos, newdata=data.frame(t(x0)), interval="predict")
+```
+
+__Your answer:__ The predicted value for the response  with one principal component is -205.0924.
+
+
+
+Adding Age and Weight and doing the PCR analysis again:
+```{r}
+seatpos_pca <- prcomp(seatpos[,1:8])
+seatpos_pca
+```
+
+```{r}
+summary(seatpos_pca)
+```
+
+__Your answer:__ From this summary, it seems like the first 3 principal components explain 99.23% of the variation in the data whereas the other components don't explain a lot more about the variance. So, we could use only the first three PC's.
+
+
+But to double check, we plot the standard deviations of the principal components:
+```{r}
+#sdev and SD both represent standard deviation
+plot(seatpos_pca$sdev,type="l",ylab="SD of PC", xlab="PC number")
+```
+
+__Your answer:__ The "elbow" is at 4 which means that we should use only the first 3 PC's based on this plot, as well.
+
+
+Now predict the response for predictors taking these values:
+```{r}
+library(pls)
+pcr_seatpos <- pcr(hipcenter ~ Age + Weight + HtShoes + Ht + Seated + Arm + Thigh + Leg, data = seatpos, ncomp = 3) #ncomp is 3 because we're using 3 PC's
+summary(pcr_seatpos)
+```
+
+```{r}
+predict(pcr_seatpos, newdata=data.frame(t(x0)), interval="predict") #x0 is the data from the textbook
+```
+
+__Your answer:__ The predicted value for the response with 1 principal component is -276.0396. The predicted value for the response with 2 principal components is -240.8368. And the predicted value for the response with 3 principal components is -186.7917.
+
+
+# Chapter 11 Problem 6 (a-d)
+
+### The dataset kanga contains data on the skulls of historical kangaroo specimens. (a) Compute a PCA on the 18 skull measurements. You will need to exclude observations with missing values. What percentage of variation is explained by the first principal component?
+
+```{r}
+library(faraway)
+head(kanga) #looking for NA values
+```
+
+```{r}
+kanga_without_NA <- na.omit(kanga)
+kanga_without_NA_pca <- prcomp(kanga_without_NA[,-c(1,2)]) #-c(1,2) in the column spot of [] removes col 1 and 2. They need to be removed because they have non-numeric values in them.
+
+summary(kanga_without_NA_pca)
+```
+
+__Your answer:__ The percentage of variation explained by the first PC is 90.03%.
+
+	
+### (b) Provide the loadings for the first principal component. What variables are prominent?
+
+```{r}
+#The loadings can be found in the rotation matrix ($rotation)
+kanga_without_NA_pca$rotation[,1] #[,1] means 1st col and that is PC1
+```
+
+__Your answer:__ It seems like the prominent variables are basilar.length, occipitonasal.length, and mandible.length (or at least they are the variables with the higher coefficient values of > 0.4). That means that the first principal component is pretty strongly correlated with those three original predictors.  Also, all of the variables are positive except for one which is crest.width. Which is weird because PC1 should only have all of the variables with the same direction which is all positive values. All of the positive variables should affect how close the person sits from the steering wheel in the chair. And the negative one would cause the person to sit further away on the chair from the steering wheel.
+
+
+### (c) Repeat the PCA but with the variables all scaled to the same standard deviation. How do the percentage of variation explained and the first principal component differ from those found in the previous PCA?
+
+
+```{r}
+pca_scaled <- prcomp(kanga_without_NA[,-c(1,2)], center=TRUE, scale=TRUE)#before in part a center=TRUE and scale=FALSE (which is the default)
+summary(pca_scaled)
+```
+
+__Your answer:__ The percentage of variation explained is different because the variance explained by the first PC for this PCA is 69.31% instead of 90.03%. Also, it seems like this scaled PCA will need more PC's than the previous one because it takes more PC's to explain a lot of the variation compared to the previous one.
+
+
+Loadings for the first principal component:
+```{r}
+pca_scaled$rotation[,1] #[,1] means 1st col and that is PC1
+```
+
+__Your answer:__ Unlike the previous PCA where the prominent variables were basilar.length, occipitonasal.length, and mandible.length, for this PCA it seems like there aren't any prominent variables because the highest coefficients are all < 0.3. Like before, all of the variables are positive except for one which is crest.width. And as mentioned before this is weird because PC1 should only have all of the variables with the same direction which is all positive values. All of the positive variables should affect how close the person sits from the steering wheel in the chair. And the negative one would cause the person to sit further away on the chair from the steering wheel.
+
+
+### (d) Give an interpretation of the second principal component.
+
+Loadings for the second principal component:
+```{r}
+pca_scaled$rotation[,2] #[,2] means 2nd col and that is PC2
+```
+
+__Your answer:__ From the 2nd PC, it seems like there are 2 prominent variables one of which is positive which is crest.width because it is > 0.4 and 1 variable that greater than 0.4 in the negative direction which is foramina.length. It also seems like there is a difference between the variables because some of them are positive and some of them are negative. So, if someone had a bigger crest.width then they would be closer to the steering wheel in their chair. But if they had a bigger foramina.length then they would sit further in their chair away from the steering wheel. Overall, the variables that are positive affect how close to the steering wheel the person sits on the chair, and the variables that are negative affect how much further the person sits from the steering wheel in the chair.
