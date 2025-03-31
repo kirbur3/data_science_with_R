@@ -31,6 +31,8 @@ STAT364 Data Science Estimation Homework 1:
 
 STAT364 Data Science Final Class Project R:
 
+Note: This project is listed in my resume as "**Predictive Modeling & Transformation Project**".
+
 -Selected a model, checked for large leverage points, outliers, and influential points.
 
 -Examined the structure of the relationship between the predictors and the response.
