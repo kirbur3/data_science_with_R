@@ -15,6 +15,7 @@ STAT364 Data Science Diagnostics and Problems with Predictors:
 -Computed prediction intervals and compared their answers.
 
 STAT364 Data Science Estimation Homework 1:
+
 -Fitted a regression meodel and examined the goodness of fit.
 
 -Looked into which observation has the largest (positive) residual.
