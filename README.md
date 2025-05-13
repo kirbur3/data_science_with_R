@@ -2,7 +2,7 @@
 
 STAT364 Data Science Diagnostics and Problems with Predictors Homework 3 (R):
 
-
+Note: This project is listed in my CV as "**Regression Diagnostics and Model Refinement**".
 
 -Checked error assumptions, looked for unusual observations, and examined the structure of the model.
 
@@ -34,7 +34,7 @@ STAT364 Data Science Estimation Homework 1:
 
 STAT364 Data Science Final Class Project R:
 
-Note: This project is listed in my resume as "**Predictive Modeling & Transformation Project**".
+Note: This project is listed in my resume & CV as "**Dimensionality Reduction and Regression Modeling with PCA**".
 
 -Selected a model, checked for large leverage points, outliers, and influential points.
 
@@ -45,6 +45,8 @@ Note: This project is listed in my resume as "**Predictive Modeling & Transforma
 -Transformed the data and interpreted the results at every step of the project.
 
 STAT364 Data Science Inference, Predictor, and Explanation Homework 2:
+
+Note: This project is listed in my CV as "**Model Comparison and Statistical Inference in Regression Analysis**".
 
 -Fitted models, computed confidence intervals and a joint confidence region, evaluated models using anova, and interpreted the results.
 
