@@ -1,6 +1,8 @@
 # data_science_with_R
 
-STAT364 Data Science Diagnostics and Problems with Predictors:
+STAT364 Data Science Diagnostics and Problems with Predictors Homework 3 (R):
+
+
 
 -Checked error assumptions, looked for unusual observations, and examined the structure of the model.
 
