@@ -2,7 +2,7 @@
 
 STAT364 Data Science Diagnostics and Problems with Predictors Homework 3 (R):
 
-Note: This project is listed in my CV as "**Regression Diagnostics and Model Refinement**".
+Note: This project is one part of my broader "**Advanced Regression Modeling & Statistical Inference in R**" work, which includes multiple applied regression studies across different datasets.
 
 -Checked error assumptions, looked for unusual observations, and examined the structure of the model.
 
@@ -46,7 +46,7 @@ Note: This project is listed in my resume & CV as "**Dimensionality Reduction an
 
 STAT364 Data Science Inference, Predictor, and Explanation Homework 2:
 
-Note: This project is listed in my CV as "**Model Comparison and Statistical Inference in Regression Analysis**".
+Note: This project is also a part of my broader "**Advanced Regression Modeling & Statistical Inference in R**" work, which includes multiple applied regression studies across different datasets.
 
 -Fitted models, computed confidence intervals and a joint confidence region, evaluated models using anova, and interpreted the results.
 
