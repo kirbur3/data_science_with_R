@@ -1,5 +1,5 @@
 ---
-title: "STAT364 Data Science Inference, Predictor, and Explanation Homework 02"
+title: "Model Comparison and Statistical Inference in Regression Analysis with R"
 author: "Kira Novitchkova-Burbank"
 output: rmdformats::material
 ---
