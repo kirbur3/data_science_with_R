@@ -1,5 +1,5 @@
 ---
-title: "STAT364 Data Science Final Project"
+title: "Dimensionality Reduction and Regression Modeling with PCA in R"
 author: "Kira Novitchkova-Burbank"
 output: rmdformats::material
 ---
