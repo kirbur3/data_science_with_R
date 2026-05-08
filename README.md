@@ -1,6 +1,6 @@
 # data_science_with_R
 
-STAT364 Data Science Diagnostics and Problems with Predictors Homework 3 (R):
+**Regression Diagnostics and Model Refinement in R:**
 
 Note: This project is one part of my broader "**Advanced Regression Modeling & Statistical Inference in R**" work, which includes multiple applied regression studies across different datasets.
 
