@@ -1,5 +1,5 @@
 ---
-title: "STAT364 Data Science Diagnostics and Problems with Predictors Homework 03"
+title: "Regression Diagnostics and Model Refinement in R"
 author: "Kira Novitchkova-Burbank"
 output: rmdformats::material
 ---
