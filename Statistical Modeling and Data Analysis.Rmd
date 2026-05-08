@@ -1,5 +1,5 @@
 ---
-title: "STAT364 Data Science Problems with the Error, Transformation, Model Selection, & Shrinkage Methods Homework 4"
+title: "Statistical Modeling and Data Analysis"
 author: "Kira Novitchkova-Burbank"
 output: rmdformats::material
 ---
