@@ -1,5 +1,5 @@
 ---
-title: "STAT364 Data Science Midterm Project (R)"
+title: "Linear Regression Modeling for Material Density Prediction"
 author: "Kira Novitchkova-Burbank"
 output: rmdformats::material
 ---
