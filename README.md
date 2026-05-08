@@ -32,9 +32,7 @@ STAT364 Data Science Estimation Homework 1:
 
 -Fitted a model without an intercept term, compared the goodness of fit for this model to the goodness of fit of the model with an intercept.
 
-STAT364 Data Science Final Class Project R:
-
-Note: This project is listed in my resume & CV as "**Dimensionality Reduction and Regression Modeling with PCA**".
+**Dimensionality Reduction and Regression Modeling with PCA**:
 
 -Selected a model, checked for large leverage points, outliers, and influential points.
 
