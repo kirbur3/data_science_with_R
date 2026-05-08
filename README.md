@@ -42,7 +42,7 @@ STAT364 Data Science Estimation Homework 1:
 
 -Transformed the data and interpreted the results at every step of the project.
 
-STAT364 Data Science Inference, Predictor, and Explanation Homework 2:
+**Model Comparison and Statistical Inference in Regression Analysis with R:**
 
 Note: This project is also a part of my broader "**Advanced Regression Modeling & Statistical Inference in R**" work, which includes multiple applied regression studies across different datasets.
 
