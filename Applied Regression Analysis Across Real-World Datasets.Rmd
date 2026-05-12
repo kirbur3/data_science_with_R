@@ -1,5 +1,5 @@
 ---
-title: "STAT364 Data Science Estimation Homework 1 (R)"
+title: "Applied Regression Analysis Across Real-World Datasets"
 author: "Kira Novitchkova-Burbank"
 output: rmdformats::material
 ---
