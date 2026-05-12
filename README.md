@@ -34,6 +34,8 @@ Note: This project is one part of my broader "**Advanced Regression Modeling & S
 
 **Dimensionality Reduction and Regression Modeling with PCA**:
 
+-Note: The final.txt file was used for this project.
+
 -Selected a model, checked for large leverage points, outliers, and influential points.
 
 -Examined the structure of the relationship between the predictors and the response.
@@ -59,6 +61,8 @@ Note: This project is also a part of my broader "**Advanced Regression Modeling 
 -Created different plots and interpreted the meaning of a predictor's coefficients.
 
 **Linear Regression Modeling for Material Density Prediction:**
+
+-Note: The p3.txt file was used for this project.
 
 -Fitted a linear model and created multiple plots with linear regression lines.
 
