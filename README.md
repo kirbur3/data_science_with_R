@@ -16,7 +16,7 @@ Note: This project is one part of my broader "**Advanced Regression Modeling & S
 
 -Computed prediction intervals and compared their answers.
 
-STAT364 Data Science Estimation Homework 1:
+**Applied Regression Analysis Across Real-World Datasets**:
 
 -Fitted a regression meodel and examined the goodness of fit.
 
@@ -58,7 +58,7 @@ Note: This project is also a part of my broader "**Advanced Regression Modeling 
 
 -Created different plots and interpreted the meaning of a predictor's coefficients.
 
-STAT364 Data Science Midterm Project (R):
+**Linear Regression Modeling for Material Density Prediction:**
 
 -Fitted a linear model and created multiple plots with linear regression lines.
 
@@ -66,7 +66,7 @@ STAT364 Data Science Midterm Project (R):
 
 -Used anova and determined the goodness of fit to find out which predictor is the most significant and interpreted the results at every step.
 
-STAT364 Data Science Problems with the Error, Transformation, Model Selection, and Shrinkage Methods Homework 4:
+**Statistical Modeling and Data Analysis:**
 
 -Fitted a model and checked for non-constant variance.
 
