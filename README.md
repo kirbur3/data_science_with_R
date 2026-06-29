@@ -9,7 +9,6 @@ Projects in this repo:
 •	**Linear Regression Modeling for Material Density Prediction**
 •	**Applied Regression Analysis Across Real-World Datasets**
 
-
 **Statistical Modeling and Data Analysis**
 Four-problem analysis covering non-constant error variance, response transformation, model selection, and principal component regression using pipeline, ozone, prostate, seatpos, and kanga datasets.
 Tools: R, faraway, MASS, leaps, pls
